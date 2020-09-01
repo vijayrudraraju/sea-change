@@ -1,0 +1,34 @@
+{
+  "name": "kelp-lords",
+  "version": "1.0.0",
+  "description": "Neko Atsume-like otter game",
+  "scripts": {
+    "build": "webpack",
+    "serve": "node server.js",
+    "start": "webpack && node server.js",
+    "dev": "webpack-dev-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vijay Rudraraju",
+  "devDependencies": {
+    "babel": "latest",
+    "babel-core": "latest",
+    "babel-loader": "latest",
+    "copy-webpack-plugin": "latest",
+    "raw-loader": "^4.0.1",
+    "ts-loader": "latest",
+    "typescript": "latest",
+    "webpack": "latest",
+    "webpack-cli": "latest",
+    "webpack-dev-server": "latest",
+    "webpack-livereload-plugin": "^2.3.0"
+  },
+  "dependencies": {
+    "@magenta/music": "^1.19.0",
+    "@tensorflow/tfjs": "^2.2.0",
+    "nexusui": "^2.1.5",
+    "phaser": "^3.24.1",
+    "phaser3-rex-plugins": "^1.1.23",
+    "tone": "^14.7.43"
+  }
+}
