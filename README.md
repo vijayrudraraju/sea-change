@@ -1,4 +1,5 @@
-# Kelp Lords
+# Sea Change
+## Submission for BitRate 2020
 
 ## Local development
 ```
