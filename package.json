@@ -3,11 +3,9 @@
   "version": "1.0.0",
   "description": "Neko Atsume-like otter game",
   "scripts": {
-    "build": "webpack",
+    "build": "webpack --config webpack.config.js",
     "serve": "node server.js",
-    "start": "webpack && node server.js",
-    "dev": "webpack-dev-server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack --config glitch.webpack.config.js && node server.js"
   },
   "author": "Vijay Rudraraju",
   "devDependencies": {
@@ -24,11 +22,11 @@
     "webpack-livereload-plugin": "^2.3.0"
   },
   "dependencies": {
-    "@magenta/music": "^1.19.0",
-    "@tensorflow/tfjs": "^2.2.0",
-    "nexusui": "^2.1.5",
-    "phaser": "^3.24.1",
-    "phaser3-rex-plugins": "^1.1.23",
-    "tone": "^14.7.43"
+    "@magenta/music": "latest",
+    "@tensorflow/tfjs": "latest",
+    "nexusui": "latest",
+    "phaser": "latest",
+    "phaser3-rex-plugins": "latest",
+    "tone": "latest"
   }
 }
