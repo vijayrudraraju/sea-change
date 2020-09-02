@@ -33,19 +33,11 @@ require('./index.html')
 import * as Phaser from 'phaser'
 import * as Audio from './audio'
 import * as NOAA from './weather/noaa'
-
-const COLOR_PRIMARY = 0x4e342e
-const COLOR_LIGHT = 0x7b5e57
-const COLOR_DARK = 0x260e04
-const COLOR_RED = 0xff0000
-const COLOR_GREEN = 0x00ff00
-
-const GetValue = Phaser.Utils.Objects.GetValue
+import * as UI from './ui'
 
 let BAR = 0
 let BEAT = 0
 let SIXT = 0
-let HOUR = 12
 let LOCATION = 'Location: Arena Cove, CA'
 
 export class GameScene extends Phaser.Scene {
@@ -89,6 +81,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     init(initData) {
+        console.log('GameScene', 'init()', { initData })
         this.WEATHER_DATA = initData
     }
 
@@ -124,24 +117,27 @@ export class GameScene extends Phaser.Scene {
 
         this.graphics = this.add.graphics()
 
-        // NATURE
+        // GRAPHICS
         this.createWorld()
+
+        // UI
+        UI.createStatusBox(this, Audio, LOCATION)
+    }
+
+    getMusicalCount() {
+        return { BAR, BEAT, SIXT }
     }
 
     createWorld() {
+        // ENVIRONMENT
         this.createSky()
         this.createWaves()
-
-        // UI
-        this.createStatusBox()
 
         // ANIMALS
         this.createStripers()
         this.createPlanktons()
         this.createKelp()
         this.createUrchins()
-
-        // this.createPaths()
     }
 
     audioEvent(bar, beat, sixt, lead, bass, metal, fm) {
@@ -149,7 +145,7 @@ export class GameScene extends Phaser.Scene {
         BEAT = beat
         SIXT = sixt
 
-        this.btn.setText(this.createTextString(this.playing))
+        this.btn.setText(UI.createTextString(this.playing, { BAR, BEAT, SIXT }))
 
         if (bass) {
             if (this.lastUrchinTween && this.lastUrchinTween.stop) {
@@ -188,7 +184,7 @@ export class GameScene extends Phaser.Scene {
                     this.waveTweens.push(this.tweens.add({
                         targets: val,
                         x: (val.x + this.CANVAS_WIDTH * 1.6),
-                        y: 320,
+                        y: 300,
                         ease: 'Sine',
                         duration: 4000 - (waveSwell * 10),
                         yoyo: false,
@@ -219,86 +215,6 @@ export class GameScene extends Phaser.Scene {
                 this.skyEven[idx].fillPath()
             })
         }
-    }
-
-    createButton(text) {
-        const COLOR_LIGHT = 0x7b5e57
-        const COLOR_DARK = 0x260e04
-
-        return this.rexUI.add.label({
-            background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10).setStrokeStyle(2, COLOR_LIGHT),
-            icon: this.add.circle(0, 0, 10).setStrokeStyle(1, COLOR_DARK).setFillStyle(COLOR_RED),
-            text: this.add.text(0, 0, text, {
-                fontSize: 18
-            }),
-            space: {
-                left: 10, right: 10, top: 10, bottom: 10,
-                icon: 10
-            },
-            align: 'center',
-            name: text,
-            width: 300
-        });
-    }
-
-    createStatusBox() {
-        const today = new Date();
-        const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-        HOUR = today.getHours()
-        const time = HOUR + ":" + today.getMinutes();
-        const dateTime = date + ' ' + time;
-        const contents = [
-            `${LOCATION}\n`,
-            `${dateTime}\n`,
-            `Water Level\t\t${this.WEATHER_DATA.waterLevel} ft`,
-            `Water Temp\t\t\t${this.WEATHER_DATA.waterTemperature} F`,
-            //`Air Pressure\t${this.WEATHER_DATA.airPressure} mbar`,
-            //`Air Temp\t\t\t\t\t${this.WEATHER_DATA.airTemperature} F`,
-            `Wind\t\t\t\t\t\t\t\t\t${this.WEATHER_DATA.wind.knots} knots ${this.WEATHER_DATA.wind.direction}`
-        ]
-        const content = contents.join('\n')
-        const textbox = this.createTextBox(10, 10, {
-            wrapWidth: 500,
-            icon: null,
-            iconMask: false
-        }).start(content, 10)
-        this.add.existing(textbox)
-
-        const COLOR_PRIMARY = 0x4e342e
-        const background = this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, COLOR_PRIMARY)
-        this.btn = this.createButton(this.createTextString(false))
-        var buttons = this.rexUI.add.fixWidthButtons({
-            x: 550, y: 30,
-            width: 300,
-            background: background,
-            buttons: [this.btn],
-            space: {
-                line: 10, item: 10
-            }
-        })
-            .layout()
-        buttons.on('button.click', () => {
-            console.log('CLICK', this)
-            if (!this.playing) {
-                Audio.start()
-                this.playing = true
-                this.btn.setText(
-                    this.createTextString(true)
-                ).getElement('icon').setFillStyle(COLOR_GREEN)
-            } else {
-                Audio.pause()
-                this.playing = false
-                this.btn.setText(
-                    this.createTextString(false)
-                ).getElement('icon').setFillStyle(COLOR_RED)
-            }
-        });
-    }
-
-    createTextString(playing) {
-        return playing ?
-            `Playing\t\t${BAR}\t:\t${BEAT}\t:\t${SIXT}` :
-            `Paused\t\t\t${BAR}\t:\t${BEAT}\t:\t${SIXT}`
     }
 
     createSky() {
@@ -360,101 +276,33 @@ export class GameScene extends Phaser.Scene {
 
     createWaves() {
         var NUM_WAVES = 10
-        // console.log(NUM_WAVES)
-        const directionBool = Phaser.Math.Between(0, 1)
-        const direction = directionBool == 0 ? -1 : 1
+
         this.waves = []
         this.wavesX = []
+
         for (let i = 1; i < NUM_WAVES; i++) {
-            let waveX = (Math.random() + 1) * 3
-            let waveY = 3
-            this.waves.push(this.createWave(waveX, 3, direction))
+            let xStart = -400 * Math.random()
+            this.wavesX.push(xStart)
+            this.waves.push(this.createWave(xStart))
         }
+        console.log('createWave()', { wavesX: this.wavesX, NUM_WAVES })
     }
 
-    createWave(x, y, direction) {
-        //console.log(x)
-        //console.log(waveSwell)
-        let xStart = -400 * Math.random()
-        this.wavesX.push(xStart)
-        let height = 160
-        var triangle = this.add.triangle(
-            xStart, 250, // origin x, y
-            -350, height, // bottom left pt
-            100, height, // bottom right pt
+    createWave(xStart) {
+        return this.add.triangle(
+            xStart, 200, // origin x, y
+            -350, 100, // bottom left pt
+            100, 100, // bottom right pt
             0, 0, // top left pt
             Phaser.Display.Color.GetColor(0, 0, 100));
-        return triangle
     }
-
-    createTextBox(x, y, config) {
-        const wrapWidth = GetValue(config, 'wrapWidth', 0);
-        const fixedWidth = GetValue(config, 'fixedWidth', 0);
-        const fixedHeight = GetValue(config, 'fixedHeight', 0);
-
-        const textBox = this.rexUI.add.textBox({
-            x: x,
-            y: y,
-            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, COLOR_PRIMARY)
-                .setStrokeStyle(2, COLOR_LIGHT),
-            icon: null,
-            text: this.getBuiltInText(wrapWidth, fixedWidth, fixedHeight),
-            space: {
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: 20,
-                icon: 10,
-                text: 10,
-            }
-        })
-            .setOrigin(0)
-            .layout();
-
-        return textBox;
-    }
-
-    getBuiltInText(wrapWidth, fixedWidth, fixedHeight) {
-        return this.add.text(0, 0, '', {
-            fontSize: '16px',
-            wordWrap: {
-                width: wrapWidth
-            },
-            maxLines: 10
-        })
-            .setFixedSize(fixedWidth, fixedHeight);
-    }
-
-    /*
-    createPaths() {
-        let randomStartY = 200 + (600 * Math.random())
-        var fishStartX = -500
-        var fishEndX = this.scale.width + 500
- 
-        this.path = new Phaser.Curves.Path(fishStartX, randomStartY);
-        var maxSteps = 8;
-        let lastYStep = randomStartY
-        let fishX = 0
-        for (var i = 0; i < maxSteps; i++) {
-            let randomHeightStep = 20 * Math.random()
-            fishX += 200 * Math.random()
-            this.path.lineTo(fishX, randomHeightStep + lastYStep)
-        }
-        this.path.lineTo(fishEndX, lastYStep);
-        console.log('createPaths()', 'this.path', this.path)
-    }
-    */
 
     createStripers() {
         const striperFreneticism = (this.WEATHER_DATA.waterLevel * 1)
         const NUM_STRIPERS = Number(((this.WEATHER_DATA.waterTemperature / 100) + 5).toFixed())
-        // console.log(striperFreneticism)
-        // console.log(NUM_WAVES, waveSwell)
 
+        console.log('createStripers()', { striperFreneticism, NUM_STRIPERS })
 
-        let width = this.scale.width
-        let height = this.scale.height
-        //  Create the path stripers
         // Groups can be initialized with a GroupConfig OR GroupCreateConfig
         this.stripers = this.add.group({
             defaultKey: 'striper',
@@ -467,7 +315,7 @@ export class GameScene extends Phaser.Scene {
                 striper.scale = 0.6
 
                 const directionBool = Phaser.Math.Between(0, 1)
-                console.log('directionBool', directionBool)
+                console.log('createStripers()', { directionBool })
                 const direction = directionBool == 0 ? -1 : 1
                 striper.flipX = directionBool == 0 ? true : false
 
@@ -580,8 +428,6 @@ export class GameScene extends Phaser.Scene {
                 y += KELP_SEGMENT_LENGTH
             }
         }
-
-        // this.matter.add.mouseSpring();
     }
 
     createUrchins() {
@@ -595,17 +441,6 @@ export class GameScene extends Phaser.Scene {
             x = ((i * (this.CANVAS_WIDTH / NUM_URCHINS)) + Phaser.Math.Between(0, (this.CANVAS_WIDTH / NUM_URCHINS)))
             this.urchins.push(this.add.image(x, y, 'urchin'))
             this.urchins[i].scale = 0.5
-            /*
-            this.tweens.add({
-                targets: this.urchins[i],
-                ease: 'Sine',
-                duration: 2000,
-                repeat: -1,
-                scale: 1,
-                yoyo: true,
-                delay: i * 500
-            })
-            */
         }
     }
 }
@@ -619,6 +454,7 @@ export class RootScene extends Phaser.Scene {
     preload() {
         console.log('RootScene', 'preload()')
 
+        // LOADING TEXT
         const loadingText = this.make.text({
             text: 'Loading...',
             x: 360,
@@ -632,13 +468,11 @@ export class RootScene extends Phaser.Scene {
 
         // ANIMALS
         this.load.image('striper', 'sprites/fish/striper_small.png')
-        this.load.image('plankton', 'sprites/plankton_small_white.png')
-        this.load.image('kelpBall', 'https://labs.phaser.io/assets/sprites/green_ball.png')
-        this.load.image('urchin', 'sprites/urchin_small.png')
+        this.load.image('plankton', 'sprites/plankton/plankton_small_white.png')
+        this.load.image('kelpBall', 'sprites/kelp/green_ball.png')
+        this.load.image('urchin', 'sprites/urchin/urchin_small.png')
 
-
-        this.load.image('nextPage', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/assets/images/arrow-down-left.png')
-
+        // LOCATION
         const dropTitleEl = document.getElementById('dropTitle')
         this.load.on('complete', async () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -681,13 +515,6 @@ const gameConfig = {
 
     width: 720,
     height: 900,
-
-    /*
-    scale: {
-        width: 720 || window.innerWidth,
-        height: 950 || window.innerHeight,
-    },
-    */
 
     physics: {
         default: 'matter',
