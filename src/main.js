@@ -41,6 +41,7 @@ let SIXT = 0
 let LOCATION = 'Location: Arena Cove, CA'
 
 const audioEvent = (scene, lead, bass, metal, fm) => {
+    const { BAR, BEAT, SIXT } = scene.getMusicalCount()
     scene.btn.setText(UI.createTextString(scene.playing, { BAR, BEAT, SIXT }))
 
     if (bass) {
@@ -62,8 +63,54 @@ const audioEvent = (scene, lead, bass, metal, fm) => {
     }
 
     if (lead) {
-        scene.kelp[scene.lastKelpIndex % scene.kelp.length][(BAR % 8) + 2].thrust(0.017)
+        scene.kelp[scene.lastKelpIndex % scene.kelp.length][(BAR % 8) + 2].thrust(0.027)
         scene.lastKelpIndex++
+    }
+
+    if (metal) {
+        const waterLevel = scene.WEATHER_DATA.waterLevel
+        if (scene.striperReverse) {
+            scene.striperTweens.forEach(val => {
+                val.stop()
+            })
+            scene.striperTweens = []
+
+            scene.stripers.getChildren().forEach(val => {
+                const toX = val.getData('startingX')
+                val.flipX = !val.flipX
+                scene.striperTweens.push(scene.tweens.add({
+                    targets: val,
+                    x: toX,
+                    duration: 500 + (100 * waterLevel),
+                    ease: 'Sine',
+                    hold: Phaser.Math.Between(0, 5 * waterLevel),
+                    yoyo: false,
+                    flipX: false,
+                    repeat: 0,
+                    delay: 0
+                }))
+            })
+            scene.striperReverse = !scene.striperReverse
+        } else {
+            scene.striperTweens = []
+            scene.stripers.getChildren().forEach(val => {
+                const toX = val.getData('startingX') +
+                    (10 * waterLevel * val.getData('moveAmount') * val.getData('direction'))
+                val.flipX = !val.flipX
+                scene.striperTweens.push(scene.tweens.add({
+                    targets: val,
+                    x: toX,
+                    duration: 500 + (100 * waterLevel),
+                    ease: 'Sine',
+                    //hold: Phaser.Math.Between(0, 5 * waterLevel),
+                    yoyo: false,
+                    flipX: false,
+                    repeat: 0,
+                    delay: 0
+                }))
+            })
+            scene.striperReverse = !scene.striperReverse
+        }
     }
 
     if (fm) {
@@ -147,6 +194,7 @@ export class GameScene extends Phaser.Scene {
         this.lastUrchinIndex = 0
         this.lastUrchinTween = null
         this.lastKelpIndex = 0
+        this.striperReverse = false
 
         // Waves
         this.waves = null
@@ -197,6 +245,12 @@ export class GameScene extends Phaser.Scene {
 
     getMusicalCount() {
         return { BAR, BEAT, SIXT }
+    }
+
+    setMusicalCount(bar, beat, sixt) {
+        BAR = bar
+        BEAT = beat
+        SIXT = sixt
     }
 
     createWorld() {
@@ -292,10 +346,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     createStripers() {
-        const striperFreneticism = (this.WEATHER_DATA.waterLevel * 1)
         const NUM_STRIPERS = Number(((this.WEATHER_DATA.waterTemperature / 100) + 5).toFixed())
 
-        console.log('createStripers()', { striperFreneticism, NUM_STRIPERS })
+        console.log('createStripers()', { NUM_STRIPERS })
 
         // Groups can be initialized with a GroupConfig OR GroupCreateConfig
         this.stripers = this.add.group({
@@ -303,26 +356,25 @@ export class GameScene extends Phaser.Scene {
             //repeat: NUM_STRIPERS,
             maxSize: NUM_STRIPERS,
             createCallback: (striper) => {
-                striper.setData('normalizedSpeed', 0.001)
-                striper.setData('initX', striper.x)
-                striper.setData('initY', striper.y)
+                striper.setTint(Phaser.Display.Color.RandomRGB(160, 240).color)
                 striper.scale = 0.6
 
-                const directionBool = Phaser.Math.Between(0, 1)
-                console.log('createStripers()', { directionBool })
-                const direction = directionBool == 0 ? -1 : 1
-                striper.flipX = directionBool == 0 ? true : false
+                //const directionBool = Phaser.Math.Between(0, 1)
+                //const direction = directionBool == 0 ? -1 : 1
+                //striper.flipX = directionBool == 0 ? true : false
+                const randomBool = Phaser.Math.Between(0, 1)
+                const direction = randomBool ? -1 : 1
+                striper.flipX = !randomBool
+                striper.setData('direction', direction)
+                striper.setData('startingX', striper.x)
+                striper.setData('moveAmount', Phaser.Math.Between(3, 7))
 
-                this.tweens.add({
-                    targets: striper,
-                    x: (10 * striperFreneticism) * direction,
-                    duration: 3000 + (100 * striperFreneticism),
-                    ease: 'Sine',
-                    hold: Phaser.Math.Between(0, 5 * striperFreneticism),
-                    yoyo: true,
-                    flipX: true,
-                    repeat: -1,
-                    delay: 100 * striperFreneticism / 100
+                console.log('createStripers()', {
+                    randomBool,
+                    direction,
+                    flipX: striper.flipX,
+                    x: striper.x,
+                    y: striper.y,
                 })
             },
             removeCallback: () => { },
@@ -330,8 +382,9 @@ export class GameScene extends Phaser.Scene {
 
         // Keep maxSize number of Stripers on the screen
         this.time.addEvent({
-            delay: 200,
-            loop: true,
+            delay: 100,
+            repeat: 10,
+            loop: false,
             callback: () => {
                 this.stripers.get(
                     Phaser.Math.Between(10, this.CANVAS_WIDTH - 10),
@@ -347,9 +400,6 @@ export class GameScene extends Phaser.Scene {
             defaultKey: 'plankton',
             maxSize: NUM_PLANKTONS,
             createCallback: (plankton) => {
-                plankton.setData('normalizedSpeed', 0.001)
-                plankton.setData('initX', plankton.x)
-                plankton.setData('initY', plankton.y)
                 plankton.setTint(Phaser.Display.Color.RandomRGB().color)
                 plankton.scale = 0.1
                 this.tweens.add({

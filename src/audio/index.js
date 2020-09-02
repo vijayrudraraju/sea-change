@@ -42,12 +42,15 @@ export const initialize = async (WEATHER_DATA) => {
         const BEAT = parseInt(splits[1])
         const SIXT = parseInt(splits[2])
 
+        SCENE.setMusicalCount(BAR, BEAT, SIXT)
+
         const normalizedStep = ((BAR * 16) + (BEAT * 4) + SIXT) % 128
         const lead = LEAD_MAP[normalizedStep]
         const bass = BASS_MAP[normalizedStep]
         const metal = METAL_MAP[normalizedStep]
         const fm = FM_MAP[normalizedStep]
 
+        /*
         console.log('Audio', 'Loop()',
             BAR,
             BEAT,
@@ -60,6 +63,7 @@ export const initialize = async (WEATHER_DATA) => {
             },
             normalizedStep,
         )
+        */
 
         Tone.Draw.schedule(() => {
             if (!SCENE || !AUDIO_CALLBACK) return
