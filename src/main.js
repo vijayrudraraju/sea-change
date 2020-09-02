@@ -40,6 +40,79 @@ let BEAT = 0
 let SIXT = 0
 let LOCATION = 'Location: Arena Cove, CA'
 
+const audioEvent = (scene, lead, bass, metal, fm) => {
+    scene.btn.setText(UI.createTextString(scene.playing, { BAR, BEAT, SIXT }))
+
+    if (bass) {
+        if (scene.lastUrchinTween && scene.lastUrchinTween.stop) {
+            scene.lastUrchinTween.stop()
+            scene.lastUrchin.scale = 0.5
+        }
+        scene.lastUrchin = scene.urchins[scene.lastUrchinIndex % scene.urchins.length]
+        scene.lastUrchinTween = scene.tweens.add({
+            targets: scene.lastUrchin,
+            ease: 'Sine',
+            duration: 100,
+            repeat: 0,
+            scale: 1.8,
+            yoyo: true,
+            delay: 0
+        })
+        scene.lastUrchinIndex++
+    }
+
+    if (lead) {
+        scene.kelp[scene.lastKelpIndex % scene.kelp.length][(BAR % 8) + 2].thrust(0.017)
+        scene.lastKelpIndex++
+    }
+
+    if (fm) {
+        if (scene.waveTweens) {
+            scene.waveTweens.forEach(val => {
+                val.seek(0)
+            })
+        }
+
+        if (!scene.waveTweens) {
+            scene.waveTweens = []
+            const waveSwell = scene.WEATHER_DATA.wind.knots
+            scene.waves.forEach(val => {
+                scene.waveTweens.push(scene.tweens.add({
+                    targets: val,
+                    x: (val.x + scene.CANVAS_WIDTH * 1.6),
+                    y: 300,
+                    ease: 'Sine',
+                    duration: 4000 - (waveSwell * 10),
+                    yoyo: false,
+                    repeat: 0,
+                    delay: 0
+                }));
+            })
+        }
+    }
+
+    const oddCycle = [
+        0x5595af,
+        0x66a4bf,
+        0x759f99,
+        0x336faa,
+    ]
+
+    if (SIXT === 0) {
+        scene.skyOdd.forEach((val, idx) => {
+            scene.skyOdd[idx]
+                .fillStyle(oddCycle[BEAT % 4])
+            scene.skyOdd[idx].fillPath()
+        })
+
+        scene.skyEven.forEach((val, idx) => {
+            scene.skyEven[idx]
+                .fillStyle(oddCycle[(BEAT + 2) % 4])
+            scene.skyEven[idx].fillPath()
+        })
+    }
+}
+
 export class GameScene extends Phaser.Scene {
     constructor() {
         console.log('GameScene', 'constructor()')
@@ -104,11 +177,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     async create() {
-        console.log('GameScene', 'create()')
+        Audio.setScene(this, audioEvent)
 
-        Audio.setScene(game)
-
-        console.log('GameScene', {
+        console.log('GameScene', 'create()', {
             textures: this.textures,
             cache: this.cache,
             width: this.scale.width,
@@ -138,83 +209,6 @@ export class GameScene extends Phaser.Scene {
         this.createPlanktons()
         this.createKelp()
         this.createUrchins()
-    }
-
-    audioEvent(bar, beat, sixt, lead, bass, metal, fm) {
-        BAR = bar
-        BEAT = beat
-        SIXT = sixt
-
-        this.btn.setText(UI.createTextString(this.playing, { BAR, BEAT, SIXT }))
-
-        if (bass) {
-            if (this.lastUrchinTween && this.lastUrchinTween.stop) {
-                this.lastUrchinTween.stop()
-                this.lastUrchin.scale = 0.5
-            }
-            this.lastUrchin = this.urchins[this.lastUrchinIndex % this.urchins.length]
-            this.lastUrchinTween = this.tweens.add({
-                targets: this.lastUrchin,
-                ease: 'Sine',
-                duration: 100,
-                repeat: 0,
-                scale: 1.8,
-                yoyo: true,
-                delay: 0
-            })
-            this.lastUrchinIndex++
-        }
-
-        if (lead) {
-            this.kelp[this.lastKelpIndex % this.kelp.length][(BAR % 8) + 2].thrust(0.017)
-            this.lastKelpIndex++
-        }
-
-        if (fm) {
-            if (this.waveTweens) {
-                this.waveTweens.forEach(val => {
-                    val.seek(0)
-                })
-            }
-
-            if (!this.waveTweens) {
-                this.waveTweens = []
-                const waveSwell = this.WEATHER_DATA.wind.knots
-                this.waves.forEach(val => {
-                    this.waveTweens.push(this.tweens.add({
-                        targets: val,
-                        x: (val.x + this.CANVAS_WIDTH * 1.6),
-                        y: 300,
-                        ease: 'Sine',
-                        duration: 4000 - (waveSwell * 10),
-                        yoyo: false,
-                        repeat: 0,
-                        delay: 0
-                    }));
-                })
-            }
-        }
-
-        const oddCycle = [
-            0x5595af,
-            0x66a4bf,
-            0x759f99,
-            0x336faa,
-        ]
-
-        if (SIXT === 0) {
-            this.skyOdd.forEach((val, idx) => {
-                this.skyOdd[idx]
-                    .fillStyle(oddCycle[BEAT % 4])
-                this.skyOdd[idx].fillPath()
-            })
-
-            this.skyEven.forEach((val, idx) => {
-                this.skyEven[idx]
-                    .fillStyle(oddCycle[(BEAT + 2) % 4])
-                this.skyEven[idx].fillPath()
-            })
-        }
     }
 
     createSky() {

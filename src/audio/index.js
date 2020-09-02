@@ -21,9 +21,7 @@ let FM_NOTES, FM_MAP
 let SCENE = null
 let AUDIO_CALLBACK = null
 
-export const setScene = (phaserGame) => {
-    const scene = phaserGame.scene.scenes[1]
-    const { audioEvent } = scene
+export const setScene = (scene, audioEvent) => {
     SCENE = scene
     AUDIO_CALLBACK = audioEvent
 }
@@ -66,10 +64,7 @@ export const initialize = async (WEATHER_DATA) => {
         Tone.Draw.schedule(() => {
             if (!SCENE || !AUDIO_CALLBACK) return
 
-            const audioCallb = AUDIO_CALLBACK.bind(SCENE)
-            if (audioCallb) {
-                audioCallb(BAR, BEAT, SIXT, lead, bass, metal, fm)
-            }
+            AUDIO_CALLBACK(SCENE, lead, bass, metal, fm)
         }, time);
     }, '16n')
 
