@@ -34,6 +34,7 @@ import * as Phaser from 'phaser'
 import * as Audio from './audio'
 import * as NOAA from './weather/noaa'
 import * as UI from './ui'
+import * as Music from './music'
 
 let BAR = 0
 let BEAT = 0
