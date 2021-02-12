@@ -284,7 +284,7 @@ export class GameScene extends Phaser.Scene {
                 .lineStyle(2, 0xffffff)
                 .strokePoints(points, true)
                 // set hit area
-                .setInteractive(hexagon, Phaser.Geom.Polygon.Contains);
+                //.setInteractive(hexagon, Phaser.Geom.Polygon.Contains);
 
             return graphics
         }
@@ -304,7 +304,7 @@ export class GameScene extends Phaser.Scene {
                 .lineStyle(2, 0xffffff)
                 .strokePoints(points, true)
                 // set hit area
-                .setInteractive(hexagon, Phaser.Geom.Polygon.Contains);
+                //.setInteractive(hexagon, Phaser.Geom.Polygon.Contains);
             return graphics
         }
 
