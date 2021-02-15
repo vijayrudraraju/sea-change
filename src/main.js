@@ -554,13 +554,14 @@ export class RootScene extends Phaser.Scene {
 }
 
 const gameConfig = {
-    title: 'Sample',
+    title: 'Sea Change',
 
     type: Phaser.AUTO,
 
     width: 720,
     height: 900,
 
+    // http://labs.phaser.io/view.html?src=src/physics/matterjs/debug%20options.js
     physics: {
         default: 'matter',
         matter: {

@@ -9,7 +9,11 @@ app.use(express.static("public"));
 
 // http://expressjs.com/en/starter/basic-routing.html
 app.get("/", function (request, response) {
-  response.sendFile(__dirname + "/index.html");
+  response.sendFile(__dirname + "/public/index.html");
+});
+
+app.get("/hearts", function (request, response) {
+  response.sendFile(__dirname + "/public/hearts.html");
 });
 
 // listen for requests :)

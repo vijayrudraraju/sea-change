@@ -84,17 +84,24 @@ ISOTOPES
 
 /*
 BEAT PATTERNS
+
 (----) (A)
 (****) (Ainv)
+
+BREAK
 
 (*-*-) (B)
 (-*-*) (Binv)
 
+BREAK
+
 (**--) (C)
 (--**) (Cinv)
 
-(-**-) (D)
-(*--*) (Dinv)
+(-**-) (Crot)
+(*--*) (Drotinv)
+
+BREAK
 
 (*---) (E)
 (-***) (Einv)
@@ -120,9 +127,18 @@ const validateStr = (str) => {
     return isValid
 }
 
+const REST = '-'
+const HIT = '*'
+const EMPTY_4 = '----'
+
 export class Beat {
 
     constructor(arg) {
+        if (!arg) {
+            this.root = `${REST}${REST}${REST}${REST}`
+            return
+        }
+
         if (typeof arg === 'string') {
             if (!validateStr(arg)) {
                 throw new Error('Beat class constructor received invalid arg')
@@ -141,10 +157,10 @@ export class Beat {
         const inverted = []
 
         this.root.split('').forEach(char => {
-            if (char === '-') {
-                inverted.push('*')
+            if (char === `${REST}`) {
+                inverted.push(`${HIT}`)
             } else {
-                inverted.push('-')
+                inverted.push(`${REST}`)
             }
         })
         this.root = inverted.join('')
@@ -227,11 +243,93 @@ export class Beat {
             return new Beat(this.root.slice(halfIdx))
         }
     }
+
+    hitCount() {
+        return this.root.split('').reduce((accum, val) => {
+            if (val === `${HIT}`) {
+                return accum + 1
+            }
+            return accum
+        })
+    }
+
+    restCount() {
+        return this.root.split('').reduce((accum, val) => {
+            if (val === `${REST}`) {
+                return accum + 1
+            }
+            return accum
+        })
+    }
+
+    peekFirst() {
+        return this.root[0]
+    }
+
+    peekLast() {
+        return this.root[this.root.length - 1]
+    }
+
+    absoluteConsecutiveHitCount() {
+        if (this.root === `${REST}${REST}${REST}${REST}`) {
+            return 0
+        }
+
+        const clone = this.clone()
+        while (!(clone.peekFirst() === `${HIT}` && clone.peekLast() === `${REST}`)) {
+            clone.rotate()
+        }
+
+        //const hitCount = clone.hitCount()
+        const root = clone.root
+        let returnStop = false
+        let returnVal = 0
+        root.split('').forEach((char, idx) => {
+            console.log({ char, idx })
+            if (!returnStop && char === `${REST}`) {
+                returnVal = idx
+                returnStop = true
+                console.log({ char, idx })
+            }
+        })
+
+        console.log({ returnVal, returnStop, root })
+
+        return returnVal
+    }
+
+    symBreak() {
+        switch (this.hitCount()) {
+            case 0:
+                this.root = '*-*-'
+                return this
+            case 1:
+                return this
+            case 2:
+
+        }
+    }
+
+    symJoin() {
+
+    }
+}
+
+export const generateBeat = (count = 4) => {
+    const zero = new Beat()
+
+    const firstRand = getRandomInt(3)
+    if (firstRand > 0) {
+        zero.invert()
+    }
+
+    return zero
 }
 
 /*
 ('----').symbreak() === ('*-*-')
 ('*---').symjoin() === ('**--')
+
 (----) (A)
 (*-*-) (B)
 (**-) (C)
@@ -240,32 +338,43 @@ export class Beat {
 export const generateBeat = (key = 'A') => {
     const beatPatternsMap = {
         A: {
-            root: '----',
-            inv: '****',
+            root: '----' => ['-*-*'],
+            inv: '****' => ['*-*-'],
         },
         B: {
-            root: '*-*-',
-            rot: '-*-*',
+            ['****'] => root: '*-*-' => ['**--', '*--*'],
+            ['----'] => rot: '-*-*' => ['--**', '-**-'],
         },
         C: {
-            root: '**--',
-            rot: '-**-',
-            rotrot: '--**',
-            rotrotrot: '*--*',
+            ['*-*-'] => root: '**--' => ['*---', '***-'],
+            ['*-*-'] => -rot: '*--*' => ['*-**', '**-*'],
+            ['-*-*'] => rot: '-**-' => ['-*--', '--*-'],
+            ['-*-*'] => rotrot: '--**' => ['-***', '---*'],
         },
         D: {
-            root: '*---',
-            rot: '-*--',
-            rotrot: '--*-',
-            rotrotrot: '---*',
-            inv: '-***',
-            invrot: '*-**',
-            invrotrot: '**-*'
-            invrotrotrot: '***-',
+            ['**--'] => root: '*---',
+            ['**--'] => -invrot: '***-',
+            ['-**-'] => rot: '-*--',
+            ['-**-'] => rotrot: '--*-',
+            ['--**'] => -rot: '---*',
+            ['--**'] => inv: '-***',
+            ['*--*'] => invrot: '*-**',
+            ['*--*'] => invrotrot: '**-*'
         }
     }
     return beatPatternsMap[key]
 }
+
+['****'] => ['>>**', '*>>*', '**>>'] => ['>>>*', ''*>>>'] => ['>>>>']
+['*-*-', '-*-*'] => []
+['**--', '--**'] => ['>>--', '-->>']
+['*--*'] => ['>-->']
+['-**-'] => ['->>-']
+['***-'] => ['>>*-', '*>>-'] => ['>>>-']
+['-***'] => ['->>*', '-*>>'] => ['->>>']
+['*-**'] => ['*->>']
+['**-*'] => ['>>-*']
+
 */
 
 /*
@@ -331,3 +440,9 @@ testAssert(test.double(), '**--**--')
 
 testAssert(test.head(), '**')
 testAssert(test.tail(), '--')
+
+zero = new Beat('**--')
+test = new Beat('**--')
+
+//testAssert(test.absoluteConsecutiveHitCount(), 1)
+//testAssert(test.absoluteConsecutiveHitCount(), 2)

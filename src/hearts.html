@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Sea Change Simulation</title>
+  <title>Hearts for Cate</title>
   <style>
     #game {
       width: 720px;
@@ -103,35 +103,13 @@
 
 <body>
   <div id="header">
-    <p class="title">Sea Change: A Musical Simulation</p>
-    <p class="description">Welcome to the Ocean!</p>
-    <p class="description">The dynamics & life of the ocean are highly dependent on aspects such as temperature, tides,
-      sea level, and time of day to name a few.</p>
-    <p class='description'>This simulation is meant to evoke a sense of that dynamism by generating an ocean scene and
-      background music with variables polled from an API served by NOAA that reports data from several locations from
-      the West Coast of the US.</p>
-    <p class='instructions'>INSTRUCTIONS: After loading finishes, you should see a readout of data from Arena Cove, CA
-      in the upper-left corner. To start the simulation, click the button in the upper-right corner that reads "Paused".
-      You can select different locations (and seed the simulation with different data), by using the green dropdown
-      menu.
-    </p>
-
-    <div class="dropdown">
-      <button id="dropTitle" class="dropbtn">Selected Location: Arena Cove, CA</button>
-      <div class="dropdown-content">
-        <a href="#" id="arena-ca">Arena Cove, CA</a>
-        <a href="#" id="diego-ca">San Diego Bay, CA</a>
-        <a href="#" id="neah">Neah Bay, WA</a>
-        <a href="#" id="king">King Cove, AK</a>
-      </div>
-    </div>
   </div>
 
   <div id="game"></div>
 
   <script src="http://localhost:35729/livereload.js"></script>
   <script src="vendors.js"></script>
-  <script src="app.js"></script>
+  <script src="hearts.js"></script>
 </body>
 
 </html>
