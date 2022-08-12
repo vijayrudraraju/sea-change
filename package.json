@@ -26,8 +26,8 @@
     "@magenta/music": "latest",
     "@tensorflow/tfjs": "latest",
     "nexusui": "latest",
-    "phaser": "latest",
-    "phaser3-rex-plugins": "latest",
+    "phaser": "3.55.2",
+    "phaser3-rex-plugins": "1.1.72",
     "tone": "latest"
   }
 }
