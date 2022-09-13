@@ -1,137 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <title>Sea Change Simulation</title>
+    <style>
+      #game {
+        width: 720px;
+        margin: 20px auto;
+      }
 
-<head>
-  <title>Sea Change Simulation</title>
-  <style>
-    #game {
-      width: 720px;
-      margin: 20px auto;
-    }
+      #debug {
+        display: default;
+        margin: 40px;
+      }
 
-    #debug {
-      display: default;
-      margin: 40px;
-    }
+      #controls {
+        margin: 20px 0;
+        display: flex;
+        align-items: center;
+      }
 
-    #controls {
-      margin: 20px 0;
-      display: flex;
-      align-items: center;
-    }
+      #controls > label {
+        width: 100px;
+      }
 
-    #controls>label {
-      width: 100px;
-    }
+      #counts {
+        margin: 40px 0;
+        display: flex;
+        justify-content: space-between;
+      }
 
-    #counts {
-      margin: 40px 0;
-      display: flex;
-      justify-content: space-between;
-    }
+      #counts > label {
+        width: 200px;
+      }
 
-    #counts>label {
-      width: 200px;
-    }
+      #ui {
+        margin: 20px 0;
+      }
 
-    #ui {
-      margin: 20px 0;
-    }
+      #header {
+        font-size: 20px;
+        padding: 10px;
+        margin: 0 40px;
+        min-width: 680px;
+      }
 
-    #header {
-      font-size: 20px;
-      padding: 10px;
-    }
+      .title {
+        font-size: 28px;
+      }
 
-    .title {
-      font-size: 30px;
-    }
+      .instructions {
+        color: darkblue;
+        padding: 40px;
+      }
 
-    .instructions {
-      color: darkblue;
-    }
+      .description {
+        font-size: 18px;
+      }
 
-    /* Dropdown Button */
-    .dropbtn {
-      background-color: #4CAF50;
-      color: white;
-      padding: 16px;
-      font-size: 16px;
-      border: none;
-    }
+      /* Dropdown Button */
+      .dropbtn {
+        background-color: #4caf50;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+      }
 
-    /* The container <div> - needed to position the dropdown content */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
+      /* The container <div> - needed to position the dropdown content */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
 
-    /* Dropdown Content (Hidden by Default) */
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f1f1f1;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-      z-index: 1;
-    }
+      /* Dropdown Content (Hidden by Default) */
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f1f1f1;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+      }
 
-    /* Links inside the dropdown */
-    .dropdown-content a {
-      color: black;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-    }
+      /* Links inside the dropdown */
+      .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+      }
 
-    /* Change color of dropdown links on hover */
-    .dropdown-content a:hover {
-      background-color: #ddd;
-    }
+      /* Change color of dropdown links on hover */
+      .dropdown-content a:hover {
+        background-color: #ddd;
+      }
 
-    /* Show the dropdown menu on hover */
-    .dropdown:hover .dropdown-content {
-      display: block;
-    }
+      /* Show the dropdown menu on hover */
+      .dropdown:hover .dropdown-content {
+        display: block;
+      }
 
-    /* Change the background color of the dropdown button when the dropdown content is shown */
-    .dropdown:hover .dropbtn {
-      background-color: #3e8e41;
-    }
-  </style>
-</head>
+      /* Change the background color of the dropdown button when the dropdown content is shown */
+      .dropdown:hover .dropbtn {
+        background-color: #3e8e41;
+      }
+    </style>
+  </head>
 
-<body>
-  <div id="header">
-    <p class="title">Sea Change: A Musical Simulation</p>
-    <p class="description">Welcome to the Ocean!</p>
-    <p class="description">The dynamics & life of the ocean are highly dependent on aspects such as temperature, tides,
-      sea level, and time of day to name a few.</p>
-    <p class='description'>This simulation is meant to evoke a sense of that dynamism by generating an ocean scene and
-      background music with variables polled from an API served by NOAA that reports data from several locations from
-      the West Coast of the US.</p>
-    <p class='instructions'>INSTRUCTIONS: After loading finishes, you should see a readout of data from Arena Cove, CA
-      in the upper-left corner. To start the simulation, click the button in the upper-right corner that reads "Paused".
-      You can select different locations (and seed the simulation with different data), by using the green dropdown
-      menu.
-    </p>
+  <body>
+    <div id="header">
+      <p class="title">Sea Change: A Musical Simulation</p>
+      <p class="description">Welcome to the Ocean!</p>
+      <p class="description">
+        The dynamics & life of the ocean are highly dependent on aspects such as
+        temperature, tides, sea level, and time of day to name a few.
+      </p>
+      <p class="description">
+        This simulation is meant to evoke a sense of that dynamism by generating
+        an ocean scene and background music with variables polled from an API
+        served by NOAA that reports data from several locations from the West
+        Coast of the US.
+      </p>
+      <p class="instructions">
+        INSTRUCTIONS: After loading finishes, you should see a readout of data
+        from Arena Cove, CA in the upper-left corner. To start the simulation,
+        click the button in the upper-right corner that reads "Paused". You can
+        select different locations (and seed the simulation with different
+        data), by using the green dropdown menu.
+      </p>
 
-    <div class="dropdown">
-      <button id="dropTitle" class="dropbtn">Selected Location: Arena Cove, CA</button>
-      <div class="dropdown-content">
-        <a href="#" id="arena-ca">Arena Cove, CA</a>
-        <a href="#" id="diego-ca">San Diego Bay, CA</a>
-        <a href="#" id="neah">Neah Bay, WA</a>
-        <a href="#" id="king">King Cove, AK</a>
+      <div class="dropdown">
+        <button id="dropTitle" class="dropbtn">
+          Selected Location: Arena Cove, CA
+        </button>
+        <div class="dropdown-content">
+          <a href="#" id="arena-ca">Arena Cove, CA</a>
+          <a href="#" id="diego-ca">San Diego Bay, CA</a>
+          <a href="#" id="neah">Neah Bay, WA</a>
+          <a href="#" id="king">King Cove, AK</a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="game"></div>
+    <div id="game"></div>
 
-  <script src="http://localhost:35729/livereload.js"></script>
-  <script src="vendors.js"></script>
-  <script src="app.js"></script>
-</body>
-
+    <script src="http://localhost:35729/livereload.js"></script>
+    <script src="vendors.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

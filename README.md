@@ -6,8 +6,8 @@
 
 ```
 > brew install node
-> cd kelp-lords
-> npm install
+> cd sea-change
+> npm i
 
 In 2 terminal tabs:
 > npm run build (1st tab)
@@ -20,9 +20,9 @@ In 2 terminal tabs:
 
 ```
 > brew install node
-> git clone https://78e86499-5ab2-4771-ae6f-8d34b5609ade@api.glitch.com/git/kelp-lords
-> cd kelp-lords
-> npm install
+> git clone $GLITCH_REPO_URL
+> cd sea-change
+> npm i
 > npm run start
 (check console for PORT: GOTO localhost:PORT)
 ```
