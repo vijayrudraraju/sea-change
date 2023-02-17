@@ -158,15 +158,17 @@ export default class GameScene extends Phaser.Scene {
     this.WEATHER_DATA = { wind: { knots: null, direction: null } };
 
     // Tweens
+    this.striperTweens = null;
+    this.waveTweens = null;
+    this.striperReverse = false;
+
     this.lastUrchin = null;
     this.lastUrchinIndex = 0;
     this.lastUrchinTween = null;
     this.lastKelpIndex = 0;
-    this.striperReverse = false;
 
     // Waves
     this.waves = null;
-    this.waveTweens = null;
 
     this.barIndex = 0;
     this.beatIndex = 0;
