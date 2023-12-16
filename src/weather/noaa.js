@@ -16,7 +16,7 @@
 // https://www.ncdc.noaa.gov/data-access
 // https://www.ncdc.noaa.gov/cdo-web/datatools/findstation
 // https://www.ncdc.noaa.gov/cdo-web/token
-// https://www.ncdc.noaa.gov/cdo-web/webservices/v2
+// https://www.ncdc.noaa.gov/cdo-web/webservices/v2#gettingStarted
 
 // EXAMPLES:
 // https://api.tidesandcurrents.noaa.gov/api/prod/

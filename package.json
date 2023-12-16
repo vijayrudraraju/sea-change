@@ -20,15 +20,15 @@
     "webpack": "latest",
     "webpack-cli": "latest",
     "webpack-dev-server": "latest",
-    "webpack-livereload-plugin": "^2.3.0"
+    "webpack-livereload-plugin": "latest"
   },
   "dependencies": {
     "@magenta/music": "latest",
     "@tensorflow/tfjs": "latest",
-    "buffer": "^6.0.3",
+    "buffer": "latest",
     "nexusui": "latest",
-    "phaser": "3.55.2",
-    "phaser3-rex-plugins": "1.1.72",
+    "phaser": "latest",
+    "phaser3-rex-plugins": "latest",
     "tone": "latest"
   }
 }

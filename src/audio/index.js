@@ -27,9 +27,14 @@ export const setScene = (scene, audioEvent) => {
 };
 
 export const initialize = async (WEATHER_DATA) => {
+  // waterLevel can be Negative
   const { waterLevel, waterTemperature } = WEATHER_DATA;
 
-  const weatherBpm = Number(((waterLevel / 5.0) * 100.0).toFixed(1));
+  let weatherBpm = Number(((Math.abs(waterLevel) / 5.0) * 100.0).toFixed(1));
+  while (weatherBpm < 30) {
+    weatherBpm = weatherBpm * 1.25;
+  }
+  weatherBpm = Number(weatherBpm.toFixed(1));
   const weatherTemp = Number(((waterTemperature / 55.0) * 1.2).toFixed(2));
 
   console.log("Audio", "initialize()", {
