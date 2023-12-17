@@ -21,12 +21,12 @@ let FM_NOTES, FM_MAP;
 let SCENE = null;
 let AUDIO_CALLBACK = null;
 
-export const setScene = (scene, audioEvent) => {
+export const setScene = (scene, renderFn) => {
   SCENE = scene;
-  AUDIO_CALLBACK = audioEvent;
+  AUDIO_CALLBACK = renderFn;
 };
 
-export const initialize = async (WEATHER_DATA) => {
+export const initArrangement = async (WEATHER_DATA) => {
   // waterLevel can be Negative
   const { waterLevel, waterTemperature } = WEATHER_DATA;
 
@@ -82,7 +82,7 @@ export const initialize = async (WEATHER_DATA) => {
     }, time);
   }, "16n");
 
-  Parts.startAllParts(WEATHER_DATA);
+  Parts.startAllInstrumentParts(WEATHER_DATA);
 
   // MAGENTA
   // CustomMagenta.musicRNNContinueNoteSequence(sequencer)
@@ -123,7 +123,7 @@ export const initialize = async (WEATHER_DATA) => {
     FM_NOTES,
   });
 
-  Parts.updateParts({
+  Parts.updateInstrumentPartss({
     leadNotes: LEAD_NOTES,
     bassNotes: BASS_NOTES,
     metalNotes: METAL_NOTES,
@@ -131,7 +131,7 @@ export const initialize = async (WEATHER_DATA) => {
 };
 
 let FIRST_START = false;
-export const start = async () => {
+export const startPlayback = async () => {
   console.log("audio", "start()", Tone.Transport.seconds, Tone.now());
   if (!FIRST_START) {
     await Tone.start();
@@ -141,7 +141,7 @@ export const start = async () => {
   Tone.Transport.start();
 };
 
-export const pause = async () => {
+export const pausePlayback = async () => {
   console.log("audio", "pause()", Tone.Transport.seconds, Tone.now());
   Tone.Transport.pause();
 };

@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 
-export const createSources = (weatherData) => {
+export const initInstruments = (weatherData) => {
   console.log("instruments", "createSources(weatherData)", weatherData);
 
   let drumPlayers = new Tone.Players({

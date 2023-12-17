@@ -2,10 +2,15 @@ import * as Phaser from "phaser";
 import * as Audio from "../audio";
 import * as UI from "../ui";
 
-const audioEvent = (scene, lead, bass, metal, fm) => {
+/*
+* An audio transport callback that is called on every beat
+* All animation should be done here
+*/
+const audioTransportCallbackRenderFn = (scene, lead, bass, metal, fm) => {
   const { BAR, BEAT, SIXT } = scene.getMusicalCount();
   scene.btn.setText(UI.createTextString(scene.playing, { BAR, BEAT, SIXT }));
 
+  // Respond to Bass track
   if (bass) {
     if (scene.lastUrchinTween && scene.lastUrchinTween.stop) {
       scene.lastUrchinTween.stop();
@@ -25,6 +30,7 @@ const audioEvent = (scene, lead, bass, metal, fm) => {
     scene.lastUrchinIndex++;
   }
 
+  // Respond to Lead track
   if (lead) {
     scene.kelp[scene.lastKelpIndex % scene.kelp.length][(BAR % 8) + 2].thrust(
       0.027
@@ -32,6 +38,7 @@ const audioEvent = (scene, lead, bass, metal, fm) => {
     scene.lastKelpIndex++;
   }
 
+  // Respond to Metal track
   if (metal) {
     const waterLevel = scene.WEATHER_DATA.waterLevel;
     if (scene.striperReverse) {
@@ -86,6 +93,7 @@ const audioEvent = (scene, lead, bass, metal, fm) => {
     }
   }
 
+  // Respond to FM track
   if (fm) {
     if (scene.waveTweens) {
       scene.waveTweens.forEach((val) => {
@@ -129,6 +137,7 @@ const audioEvent = (scene, lead, bass, metal, fm) => {
 };
 
 export default class GameScene extends Phaser.Scene {
+  // Initialize local state
   constructor() {
     console.log("GameScene", "constructor()");
     const sceneConfig = {
@@ -175,11 +184,13 @@ export default class GameScene extends Phaser.Scene {
     this.sixtIndex = 0;
   }
 
+  // Update local state with parent state
   init(initData) {
     console.log("GameScene", "init()", { initData });
     this.WEATHER_DATA = initData;
   }
 
+  // Must load LoaderPlugins here
   preload() {
     this.CANVAS_WIDTH = this.scale.width;
     this.CANVAS_HEIGHT = this.scale.height;
@@ -201,8 +212,10 @@ export default class GameScene extends Phaser.Scene {
     );
   }
 
+  // Render initial scene && set up audio transport callback
   async create() {
-    Audio.setScene(this, audioEvent);
+    // Set up audio transport callback
+    Audio.setScene(this, audioTransportCallbackRenderFn);
 
     console.log("GameScene", "create()", {
       textures: this.textures,
@@ -221,6 +234,10 @@ export default class GameScene extends Phaser.Scene {
     UI.createStatusBox(this, Audio, LOCATION);
   }
 
+  /**
+   * Music Helper functions
+   */
+
   getMusicalCount() {
     return {
       BAR: this.barIndex,
@@ -234,6 +251,10 @@ export default class GameScene extends Phaser.Scene {
     this.beatIndex = beat;
     this.sixtIndex = sixt;
   }
+
+  /*
+   * Animation Helper Functions
+   */
 
   createWorld() {
     // ENVIRONMENT

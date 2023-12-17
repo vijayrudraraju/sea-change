@@ -14,6 +14,25 @@ In 2 terminal tabs:
 > npm run serve (2nd tab)
 ```
 
+## Local hosting
+
+Simply:
+```
+npm run start
+```
+
+## Webpack
+
+Webpack is used for TypeScript compilation and bundling.
+
+See `webpack.config.js` for configuration.
+
+## TypeScript
+
+Typescript is an option but not required.
+
+See `tsconfig.json` for configuration.
+
 ## Glitch.com
 
 [How to Clone Glitch repo locally](https://support.glitch.com/t/possible-to-code-locally-and-push-to-glitch-with-git/2704/3)

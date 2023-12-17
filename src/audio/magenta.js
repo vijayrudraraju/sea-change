@@ -18,6 +18,7 @@ export const magentaNotesToTimeMap = (magentaNotes) => {
 }
 
 // YOUTUBE: https://youtu.be/om7OkImeDDE?t=6002
+/*
 let melodyRnn = new Magenta.MusicRNN('https://storage.googleapis.com/magentadata/js/checkpoints/music_rnn/chord_pitches_improv');
 export const musicRNNContinueNoteSequence = ({
     pattern,
@@ -53,6 +54,7 @@ export const musicRNNContinueNoteSequence = ({
 
     return run()
 }
+*/
 
 // YOUTUBE: https://youtu.be/om7OkImeDDE?t=7358
 export const musicVAEHumanizeDrumTransform = (drumPattern, drumPart) => {

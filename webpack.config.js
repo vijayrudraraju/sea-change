@@ -7,9 +7,10 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   entry: {
-    app: "./src/main.js",
+    sea_change: "./src/sea_change/main.js",
     hearts: "./src/hearts/main.js",
-    worker: "./src/worker.js"
+    arrangaata: "./src/arrangaata/main.ts",
+    worker: "./src/worker.js",
   },
 
   module: {
@@ -17,24 +18,24 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: "ts-loader",
-        exclude: /node_modules/
+        exclude: [/node_modules/],
       },
       {
         test: /\.html$/,
-        use: "raw-loader"
-      }
-    ]
+        use: "raw-loader",
+      },
+    ],
   },
 
   devtool: "inline-source-map",
 
   resolve: {
-    extensions: [".ts", ".tsx", ".js"]
+    extensions: [".ts", ".tsx", ".js"],
   },
 
   output: {
     path: path.join(__dirname, "public"),
-    filename: "[name].js"
+    filename: "[name].js",
   },
 
   mode: "development",
@@ -42,7 +43,7 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, "dist"),
     writeToDisk: true,
-    open: true
+    open: true,
   },
 
   plugins: [
@@ -50,25 +51,28 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: 'src/index.html'
+          from: "src/sea_change.html",
         },
         {
-          from: 'src/hearts.html'
+          from: "src/hearts.html",
         },
         {
-          from: "sprites/**/*"
+          from: "src/arrangaata.html",
         },
         {
-          from: "audio/**/*"
-        }
-      ]
+          from: "sprites/**/*",
+        },
+        {
+          from: "audio/**/*",
+        },
+      ],
     }),
     // https://snowbillr.github.io/blog//2018-04-09-a-modern-web-development-setup-for-phaser-3/
     new webpack.DefinePlugin({
       "typeof CANVAS_RENDERER": JSON.stringify(true),
-      "typeof WEBGL_RENDERER": JSON.stringify(true)
+      "typeof WEBGL_RENDERER": JSON.stringify(true),
     }),
-    new LiveReloadPlugin({})
+    new LiveReloadPlugin({}),
   ],
 
   watch: true,
@@ -79,9 +83,9 @@ module.exports = {
         commons: {
           test: /[\\/]node_modules[\\/]/,
           name: "vendors",
-          chunks: "all"
-        }
-      }
-    }
-  }
+          chunks: "all",
+        },
+      },
+    },
+  },
 };

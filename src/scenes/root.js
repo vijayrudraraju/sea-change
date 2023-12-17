@@ -60,7 +60,7 @@ export default class RootScene extends Phaser.Scene {
       dropTitleEl.innerText = LOCATION;
 
       const WEATHER_DATA = await NOAA.getGeoPosition(location);
-      await Audio.initialize(WEATHER_DATA);
+      await Audio.initArrangement(WEATHER_DATA);
       console.log("GameScene", "preload()", {
         WEATHER_DATA: this.WEATHER_DATA,
       });

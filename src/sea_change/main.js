@@ -28,12 +28,12 @@ https://phaser.io/examples/v3/view/physics/matterjs/chain
 https://phaser.io/examples/v3/view/physics/matterjs/thrust
 */
 
-require("./index.html");
+require("../sea_change.html");
 
 import * as Phaser from "phaser";
-import * as Music from "./music";
-import RootScene from "./scenes/root";
-import GameScene from "./scenes/game";
+import * as Music from "../music";
+import RootScene from "../scenes/root";
+import GameScene from "../scenes/game";
 
 let BAR = 0;
 let BEAT = 0;

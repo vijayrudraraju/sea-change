@@ -144,14 +144,14 @@ export const createStatusBox = (scene, Audio, LOCATION) => {
   buttons.on("button.click", () => {
     console.log("CLICK", scene, scene.getMusicalCount());
     if (!scene.playing) {
-      Audio.start();
+      Audio.startPlayback();
       scene.playing = true;
       scene.btn
         .setText(createTextString(true, scene.getMusicalCount()))
         .getElement("icon")
         .setFillStyle(COLOR_GREEN);
     } else {
-      Audio.pause();
+      Audio.pausePlayback();
       scene.playing = false;
       scene.btn
         .setText(createTextString(false, scene.getMusicalCount()))
