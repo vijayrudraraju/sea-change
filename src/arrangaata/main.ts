@@ -5,7 +5,9 @@ import * as Phaser from "phaser";
 const { innerWidth: width, innerHeight: height } = window;
 
 export default class Demo extends Phaser.Scene {
-  // graphics: Phaser.GameObjects.Graphics;
+  pixels: Phaser.GameObjects.Ellipse[][] = [];
+  numPixelColumns = 0;
+  numPixelRows = 0;
 
   constructor() {
     super("demo");
@@ -75,14 +77,20 @@ export default class Demo extends Phaser.Scene {
 
     // Pixels
     const circleRadius = 5;
-    for (let j = 0; j < screenHeight / (circleRadius * 2); j++) {
-      for (let i = 0; i < screenWidth / (circleRadius * 2); i++) {
-        this.add.ellipse(
-          width / 2 - screenWidth / 2 + i * circleRadius * 2 + circleRadius,
-          circleRadius + j * circleRadius * 2,
-          circleRadius * 2,
-          circleRadius * 2,
-          0xffffff
+    this.numPixelColumns = screenWidth / (circleRadius * 2);
+    this.numPixelRows = screenHeight / (circleRadius * 2);
+
+    for (let j = 0; j < this.numPixelRows; j++) {
+      this.pixels.push([]);
+      for (let i = 0; i < this.numPixelColumns; i++) {
+        this.pixels[j].push(
+          this.add.ellipse(
+            width / 2 - screenWidth / 2 + i * circleRadius * 2 + circleRadius,
+            circleRadius + j * circleRadius * 2,
+            circleRadius * 2,
+            circleRadius * 2,
+            0xffffff
+          )
         );
       }
     }
@@ -108,7 +116,20 @@ export default class Demo extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
-    if (time % 5000 < 10) console.log(`update`, { time, delta });
+    // if (time % 5000 < 10) console.log(`update`, { time, delta });
+
+    // if (time % 1000 < 900) return;
+
+    for (let j = 0; j < this.numPixelRows; j++) {
+      for (let i = 0; i < this.numPixelColumns; i++) {
+        const r = Phaser.Math.Between(0, 35);
+        const g = Phaser.Math.Between(0, 35);
+        const b = Phaser.Math.Between(0, 135);
+
+        const color = Phaser.Display.Color.GetColor(r, g, b);
+        this.pixels[j][i].setFillStyle(color);
+      }
+    }
   }
 }
 
@@ -121,6 +142,10 @@ const config = {
   width: width - 20,
   height: height - 20,
   scene: Demo,
+  fps: {
+    target: 30,
+    forceSetTimeOut: true,
+  },
 };
 
 new Phaser.Game(config);
