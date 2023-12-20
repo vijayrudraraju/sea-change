@@ -8,6 +8,9 @@ export default class Demo extends Phaser.Scene {
   pixels: Phaser.GameObjects.Ellipse[][] = [];
   numPixelColumns = 0;
   numPixelRows = 0;
+  pixelRadius = 0;
+  screenWidth = 0;
+  screenHeight = 0;
 
   constructor() {
     super("demo");
@@ -67,6 +70,8 @@ export default class Demo extends Phaser.Scene {
     // Screen
     const screenWidth = width - 520;
     const screenHeight = height - 20;
+    this.screenWidth = screenWidth;
+    this.screenHeight = screenHeight;
     this.add.rectangle(
       width / 2,
       screenHeight / 2,
@@ -76,21 +81,19 @@ export default class Demo extends Phaser.Scene {
     );
 
     // Pixels
-    const circleRadius = 5;
+    const circleRadius = 4;
+    this.pixelRadius = circleRadius;
     this.numPixelColumns = screenWidth / (circleRadius * 2);
     this.numPixelRows = screenHeight / (circleRadius * 2);
 
     for (let j = 0; j < this.numPixelRows; j++) {
       this.pixels.push([]);
       for (let i = 0; i < this.numPixelColumns; i++) {
+        const x =
+          width / 2 - screenWidth / 2 + i * circleRadius * 2 + circleRadius;
+        const y = circleRadius + j * circleRadius * 2;
         this.pixels[j].push(
-          this.add.ellipse(
-            width / 2 - screenWidth / 2 + i * circleRadius * 2 + circleRadius,
-            circleRadius + j * circleRadius * 2,
-            circleRadius * 2,
-            circleRadius * 2,
-            0xffffff
-          )
+          this.add.ellipse(x, y, circleRadius * 2, circleRadius * 2, 0xffffff)
         );
       }
     }
@@ -128,6 +131,18 @@ export default class Demo extends Phaser.Scene {
 
         const color = Phaser.Display.Color.GetColor(r, g, b);
         this.pixels[j][i].setFillStyle(color);
+
+        const x =
+          width / 2 -
+          this.screenWidth / 2 +
+          i * this.pixelRadius * 2 +
+          this.pixelRadius +
+          Phaser.Math.Between(-4, 4);
+        const y =
+          this.pixelRadius +
+          j * this.pixelRadius * 2 +
+          Phaser.Math.Between(-4, 4);
+        this.pixels[j][i].setPosition(x, y);
       }
     }
   }
@@ -143,7 +158,7 @@ const config = {
   height: height - 20,
   scene: Demo,
   fps: {
-    target: 30,
+    target: 15,
     forceSetTimeOut: true,
   },
 };
