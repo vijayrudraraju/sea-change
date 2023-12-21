@@ -4,13 +4,70 @@ import * as Phaser from "phaser";
 
 const { innerWidth: width, innerHeight: height } = window;
 
+interface Screen {
+  width: number;
+  height: number;
+  pixels: Phaser.GameObjects.Ellipse[][];
+  numPixelColumns: number;
+  numPixelRows: number;
+  pixelRadius: number;
+  rectangle: Phaser.GameObjects.Rectangle | null;
+}
+
+interface Joystick {
+  circle: Phaser.GameObjects.Ellipse | null;
+  width: number;
+}
+
+interface Buttons {
+  rectangle: Phaser.GameObjects.Rectangle | null;
+  width: number;
+}
+
+interface Console {
+  screen: Screen;
+  joystick: Joystick;
+  buttons: Buttons;
+}
+
+function generateBackgroundColor() {
+  const r = Phaser.Math.Between(0, 25);
+  const g = Phaser.Math.Between(70, 85);
+  const b = Phaser.Math.Between(120, 155);
+
+  return Phaser.Display.Color.GetColor(r, g, b);
+}
+
+function generateCircleColor() {
+  const r = Phaser.Math.Between(120, 155);
+  const g = Phaser.Math.Between(70, 85);
+  const b = Phaser.Math.Between(120, 155);
+
+  return Phaser.Display.Color.GetColor(r, g, b);
+}
+
+function generateEllipseColor() {
+  const r = Phaser.Math.Between(70, 85);
+  const g = Phaser.Math.Between(120, 155);
+  const b = Phaser.Math.Between(120, 155);
+
+  return Phaser.Display.Color.GetColor(r, g, b);
+}
+
 export default class Demo extends Phaser.Scene {
-  pixels: Phaser.GameObjects.Ellipse[][] = [];
-  numPixelColumns = 0;
-  numPixelRows = 0;
-  pixelRadius = 0;
-  screenWidth = 0;
-  screenHeight = 0;
+  console: Console = {
+    screen: {
+      width: 0,
+      height: 0,
+      pixels: [],
+      numPixelColumns: 0,
+      numPixelRows: 0,
+      pixelRadius: 0,
+      rectangle: null,
+    },
+    joystick: { circle: null, width: 0 },
+    buttons: { rectangle: null, width: 0 },
+  };
 
   constructor() {
     super("demo");
@@ -25,6 +82,21 @@ export default class Demo extends Phaser.Scene {
     this.load.glsl("bundle", "assets/plasma-bundle.glsl.js");
     this.load.glsl("stars", "assets/starfields.glsl.js");
     */
+  }
+
+  generateCoordsForPixel(i: number, j: number) {
+    const x =
+      width / 2 -
+      this.console.screen.width / 2 +
+      i * this.console.screen.pixelRadius * 2 +
+      this.console.screen.pixelRadius +
+      Phaser.Math.Between(-2, 2);
+    const y =
+      this.console.screen.pixelRadius +
+      j * this.console.screen.pixelRadius * 2 +
+      Phaser.Math.Between(-2, 2);
+
+    return { x, y };
   }
 
   create() {
@@ -49,7 +121,8 @@ export default class Demo extends Phaser.Scene {
 
     // Buttons
     const buttonWidth = 220;
-    this.add.rectangle(
+    this.console.buttons.width = buttonWidth;
+    this.console.buttons.rectangle = this.add.rectangle(
       width - buttonWidth / 2 - 40,
       height / 2,
       buttonWidth,
@@ -59,7 +132,8 @@ export default class Demo extends Phaser.Scene {
 
     // Joystick
     const joystickWidth = 260;
-    this.add.ellipse(
+    this.console.joystick.width = joystickWidth;
+    this.console.joystick.circle = this.add.ellipse(
       joystickWidth / 2,
       height - joystickWidth / 2 - 20,
       joystickWidth,
@@ -70,9 +144,9 @@ export default class Demo extends Phaser.Scene {
     // Screen
     const screenWidth = width - 520;
     const screenHeight = height - 20;
-    this.screenWidth = screenWidth;
-    this.screenHeight = screenHeight;
-    this.add.rectangle(
+    this.console.screen.width = screenWidth;
+    this.console.screen.height = screenHeight;
+    this.console.screen.rectangle = this.add.rectangle(
       width / 2,
       screenHeight / 2,
       screenWidth,
@@ -80,21 +154,26 @@ export default class Demo extends Phaser.Scene {
       0x262829
     );
 
-    // Pixels
+    // Pixel config
     const circleRadius = 4;
-    this.pixelRadius = circleRadius;
-    this.numPixelColumns = screenWidth / (circleRadius * 2);
-    this.numPixelRows = screenHeight / (circleRadius * 2);
+    this.console.screen.pixelRadius = circleRadius;
+    this.console.screen.numPixelColumns = screenWidth / (circleRadius * 2);
+    this.console.screen.numPixelRows = screenHeight / (circleRadius * 2);
 
-    for (let j = 0; j < this.numPixelRows; j++) {
-      this.pixels.push([]);
-      for (let i = 0; i < this.numPixelColumns; i++) {
-        const x =
-          width / 2 - screenWidth / 2 + i * circleRadius * 2 + circleRadius;
-        const y = circleRadius + j * circleRadius * 2;
-        this.pixels[j].push(
-          this.add.ellipse(x, y, circleRadius * 2, circleRadius * 2, 0xffffff)
+    // Draw pixels
+    for (let j = 0; j < this.console.screen.numPixelRows; j++) {
+      this.console.screen.pixels.push([]);
+      for (let i = 0; i < this.console.screen.numPixelColumns; i++) {
+        const { x, y } = this.generateCoordsForPixel(i, j);
+        const newPixel = this.add.ellipse(
+          x,
+          y,
+          circleRadius * 2,
+          circleRadius * 2,
+          0xffffff
         );
+        // newPixel.setData({ })
+        this.console.screen.pixels[j].push(newPixel);
       }
     }
 
@@ -123,28 +202,49 @@ export default class Demo extends Phaser.Scene {
 
     // if (time % 1000 < 900) return;
 
-    for (let j = 0; j < this.numPixelRows; j++) {
-      for (let i = 0; i < this.numPixelColumns; i++) {
-        const r = Phaser.Math.Between(0, 35);
-        const g = Phaser.Math.Between(0, 35);
-        const b = Phaser.Math.Between(0, 135);
+    const randomSets: Phaser.GameObjects.Ellipse[][] = [[], []];
 
-        const color = Phaser.Display.Color.GetColor(r, g, b);
-        this.pixels[j][i].setFillStyle(color);
+    // Iterate through all pixels
+    for (let j = 0; j < this.console.screen.numPixelRows; j++) {
+      for (let i = 0; i < this.console.screen.numPixelColumns; i++) {
+        this.console.screen.pixels[j][i].setFillStyle(
+          generateBackgroundColor()
+        );
 
-        const x =
-          width / 2 -
-          this.screenWidth / 2 +
-          i * this.pixelRadius * 2 +
-          this.pixelRadius +
-          Phaser.Math.Between(-4, 4);
-        const y =
-          this.pixelRadius +
-          j * this.pixelRadius * 2 +
-          Phaser.Math.Between(-4, 4);
-        this.pixels[j][i].setPosition(x, y);
+        const { x, y } = this.generateCoordsForPixel(i, j);
+        this.console.screen.pixels[j][i].setPosition(x, y);
+
+        // if ((i * j) % 40 === 0) randomSet.push(this.screen.pixels[j][i]);
+        if (Phaser.Math.Between(0, 25) % 25 === 0) {
+          randomSets[0].push(this.console.screen.pixels[j][i]);
+
+          this.console.screen.pixels[j][i].setFillStyle(generateCircleColor());
+        } else if (Phaser.Math.Between(0, 15) % 15 === 0) {
+          randomSets[1].push(this.console.screen.pixels[j][i]);
+
+          this.console.screen.pixels[j][i].setFillStyle(generateEllipseColor());
+        }
       }
     }
+
+    Phaser.Actions.RandomEllipse(
+      randomSets[0],
+      new Phaser.Geom.Ellipse(400, 300, 100, 100)
+    );
+
+    Phaser.Actions.RandomEllipse(
+      randomSets[1],
+      new Phaser.Geom.Ellipse(600, 400, 200, 100)
+    );
+
+    /*
+    Phaser.Actions.RotateAroundDistance(
+      [...this.screen.pixels[0], ...this.screen.pixels[1]],
+      { x: 400, y: 300 },
+      0.84,
+      100
+    );
+    */
   }
 }
 
@@ -158,7 +258,7 @@ const config = {
   height: height - 20,
   scene: Demo,
   fps: {
-    target: 15,
+    target: 12,
     forceSetTimeOut: true,
   },
 };
