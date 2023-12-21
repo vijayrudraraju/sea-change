@@ -2,7 +2,7 @@ require("../arrangaata.html");
 
 import * as Phaser from "phaser";
 
-const { innerWidth: width, innerHeight: height } = window;
+const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
 interface Screen {
   width: number;
@@ -11,6 +11,7 @@ interface Screen {
   numPixelColumns: number;
   numPixelRows: number;
   pixelRadius: number;
+  gridRadius: number;
   rectangle: Phaser.GameObjects.Rectangle | null;
 }
 
@@ -41,25 +42,25 @@ interface Console {
 }
 
 function generateBackgroundColor() {
-  const r = Phaser.Math.Between(0, 25);
+  const r = Phaser.Math.Between(10, 25);
   const g = Phaser.Math.Between(70, 85);
-  const b = Phaser.Math.Between(120, 155);
+  const b = Phaser.Math.Between(140, 155);
 
   return Phaser.Display.Color.GetColor(r, g, b);
 }
 
 function generateCircleColor() {
-  const r = Phaser.Math.Between(120, 155);
+  const r = Phaser.Math.Between(140, 155);
   const g = Phaser.Math.Between(70, 85);
-  const b = Phaser.Math.Between(120, 155);
+  const b = Phaser.Math.Between(140, 155);
 
   return Phaser.Display.Color.GetColor(r, g, b);
 }
 
 function generateEllipseColor() {
   const r = Phaser.Math.Between(70, 85);
-  const g = Phaser.Math.Between(120, 155);
-  const b = Phaser.Math.Between(120, 155);
+  const g = Phaser.Math.Between(140, 155);
+  const b = Phaser.Math.Between(140, 155);
 
   return Phaser.Display.Color.GetColor(r, g, b);
 }
@@ -67,16 +68,17 @@ function generateEllipseColor() {
 export default class Demo extends Phaser.Scene {
   console: Console = {
     screen: {
-      width: 0,
-      height: 0,
+      width: windowWidth - 520,
+      height: windowHeight - 20,
       pixels: [],
       numPixelColumns: 0,
       numPixelRows: 0,
-      pixelRadius: 0,
+      pixelRadius: 4,
+      gridRadius: 3,
       rectangle: null,
     },
-    joystick: { circle: null, width: 0 },
-    buttons: { rectangle: null, width: 0 },
+    joystick: { circle: null, width: 260 },
+    buttons: { rectangle: null, width: 220 },
     game: { entities: [] },
   };
 
@@ -87,61 +89,54 @@ export default class Demo extends Phaser.Scene {
   preload() {}
 
   generateCoordsForPixel(i: number, j: number) {
+    const { gridRadius, width } = this.console.screen;
+
     const x =
-      width / 2 -
-      this.console.screen.width / 2 +
-      i * this.console.screen.pixelRadius * 2 +
-      this.console.screen.pixelRadius +
-      Phaser.Math.Between(-2, 2);
-    const y =
-      this.console.screen.pixelRadius +
-      j * this.console.screen.pixelRadius * 2 +
-      Phaser.Math.Between(-2, 2);
+      windowWidth / 2 -
+      width / 2 +
+      i * gridRadius * 2 +
+      gridRadius +
+      Phaser.Math.Between(-1, 1);
+    const y = gridRadius + j * gridRadius * 2 + Phaser.Math.Between(-1, 1);
 
     return { x, y };
   }
 
   create() {
     // Buttons
-    const buttonWidth = 220;
-    this.console.buttons.width = buttonWidth;
+    const { width: buttonWidth } = this.console.buttons;
     this.console.buttons.rectangle = this.add.rectangle(
-      width - buttonWidth / 2 - 40,
-      height / 2,
+      windowWidth - buttonWidth / 2 - 40,
+      windowHeight / 2,
       buttonWidth,
-      height - 40,
+      windowHeight - 40,
       0x6666ff
     );
 
     // Joystick
-    const joystickWidth = 260;
-    this.console.joystick.width = joystickWidth;
+    const { width: joystickWidth } = this.console.joystick;
     this.console.joystick.circle = this.add.ellipse(
       joystickWidth / 2,
-      height - joystickWidth / 2 - 20,
+      windowHeight - joystickWidth / 2 - 20,
       joystickWidth,
       joystickWidth,
       0xc175ac
     );
 
     // Screen
-    const screenWidth = width - 520;
-    const screenHeight = height - 20;
-    this.console.screen.width = screenWidth;
-    this.console.screen.height = screenHeight;
+    const { width: screenWidth, height: screenHeight } = this.console.screen;
     this.console.screen.rectangle = this.add.rectangle(
-      width / 2,
+      windowWidth / 2,
       screenHeight / 2,
       screenWidth,
       screenHeight,
-      0x262829
+      Phaser.Display.Color.GetColor(10, 70, 140)
     );
 
     // Pixel config
-    const circleRadius = 4;
-    this.console.screen.pixelRadius = circleRadius;
-    this.console.screen.numPixelColumns = screenWidth / (circleRadius * 2);
-    this.console.screen.numPixelRows = screenHeight / (circleRadius * 2);
+    const { pixelRadius, gridRadius } = this.console.screen;
+    this.console.screen.numPixelColumns = screenWidth / (gridRadius * 2);
+    this.console.screen.numPixelRows = screenHeight / (gridRadius * 2);
 
     // Initialize pixels
     for (let j = 0; j < this.console.screen.numPixelRows; j++) {
@@ -151,8 +146,8 @@ export default class Demo extends Phaser.Scene {
         const newPixel = this.add.ellipse(
           x,
           y,
-          circleRadius * 2,
-          circleRadius * 2,
+          pixelRadius * 2,
+          pixelRadius * 2,
           0xffffff
         );
         // newPixel.setData({ })
@@ -160,9 +155,27 @@ export default class Demo extends Phaser.Scene {
       }
     }
 
+    // Initialize
+
     // Debug Axis
-    this.add.line(width / 2, height / 2, 0, 0, width, 0, 0x000000);
-    this.add.line(width / 2, height / 2, 0, 0, 0, height, 0x000000);
+    this.add.line(
+      windowWidth / 2,
+      windowHeight / 2,
+      0,
+      0,
+      windowWidth,
+      0,
+      0x000000
+    );
+    this.add.line(
+      windowWidth / 2,
+      windowHeight / 2,
+      0,
+      0,
+      0,
+      windowHeight,
+      0x000000
+    );
   }
 
   update(time: number, delta: number): void {
@@ -204,16 +217,16 @@ export default class Demo extends Phaser.Scene {
 }
 
 console.log(`Phaser.VERSION: ${Phaser.VERSION}`);
-console.log(`arrangaata`, { width, height });
+console.log(`arrangaata`, { width: windowWidth, height: windowHeight });
 
 const config = {
   type: Phaser.AUTO,
   backgroundColor: 0x005157,
-  width: width - 20,
-  height: height - 20,
+  width: windowWidth - 20,
+  height: windowHeight - 20,
   scene: Demo,
   fps: {
-    target: 12,
+    target: 10,
     forceSetTimeOut: true,
   },
 };
