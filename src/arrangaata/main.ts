@@ -24,10 +24,20 @@ interface Buttons {
   width: number;
 }
 
+interface Entity {
+  gameObject: Phaser.GameObjects.GameObject;
+  pixels: Phaser.GameObjects.Ellipse[];
+}
+
+interface Game {
+  entities: Entity[];
+}
+
 interface Console {
   screen: Screen;
   joystick: Joystick;
   buttons: Buttons;
+  game: Game;
 }
 
 function generateBackgroundColor() {
@@ -67,22 +77,14 @@ export default class Demo extends Phaser.Scene {
     },
     joystick: { circle: null, width: 0 },
     buttons: { rectangle: null, width: 0 },
+    game: { entities: [] },
   };
 
   constructor() {
     super("demo");
-
-    // this.graphics = this.add.graphics();
   }
 
-  preload() {
-    /*
-    this.load.image("logo", "assets/phaser3-logo.png");
-    this.load.image("libs", "assets/libs.png");
-    this.load.glsl("bundle", "assets/plasma-bundle.glsl.js");
-    this.load.glsl("stars", "assets/starfields.glsl.js");
-    */
-  }
+  preload() {}
 
   generateCoordsForPixel(i: number, j: number) {
     const x =
@@ -100,25 +102,6 @@ export default class Demo extends Phaser.Scene {
   }
 
   create() {
-    // this.graphics = this.add.graphics();
-
-    // this.add.triangle(200, 200, 0, 148, 148, 148, 74, 0, 0x6666ff);
-
-    // Origin is the center of the object
-    /*
-    this.add.triangle(
-      200,
-      200, // origin x, y
-      0,
-      100, // bottom left pt
-      100,
-      100, // bottom right pt
-      0,
-      500, // top left pt
-      Phaser.Display.Color.GetColor(20, 30, 140)
-    );
-    */
-
     // Buttons
     const buttonWidth = 220;
     this.console.buttons.width = buttonWidth;
@@ -160,7 +143,7 @@ export default class Demo extends Phaser.Scene {
     this.console.screen.numPixelColumns = screenWidth / (circleRadius * 2);
     this.console.screen.numPixelRows = screenHeight / (circleRadius * 2);
 
-    // Draw pixels
+    // Initialize pixels
     for (let j = 0; j < this.console.screen.numPixelRows; j++) {
       this.console.screen.pixels.push([]);
       for (let i = 0; i < this.console.screen.numPixelColumns; i++) {
@@ -177,31 +160,12 @@ export default class Demo extends Phaser.Scene {
       }
     }
 
-    // Axis
+    // Debug Axis
     this.add.line(width / 2, height / 2, 0, 0, width, 0, 0x000000);
     this.add.line(width / 2, height / 2, 0, 0, 0, height, 0x000000);
-
-    // this.add.shader("RGB Shift Field", 0, 0, 800, 600).setOrigin(0);
-    // this.add.shader("Plasma", 0, 412, 800, 172).setOrigin(0);
-    // this.add.image(400, 300, "libs");
-    // const logo = this.add.image(400, 70, "logo");
-    /*
-    this.tweens.add({
-      targets: logo,
-      y: 350,
-      duration: 1500,
-      ease: "Sine.inOut",
-      yoyo: true,
-      repeat: -1,
-    });
-    */
   }
 
   update(time: number, delta: number): void {
-    // if (time % 5000 < 10) console.log(`update`, { time, delta });
-
-    // if (time % 1000 < 900) return;
-
     const randomSets: Phaser.GameObjects.Ellipse[][] = [[], []];
 
     // Iterate through all pixels
@@ -236,15 +200,6 @@ export default class Demo extends Phaser.Scene {
       randomSets[1],
       new Phaser.Geom.Ellipse(600, 400, 200, 100)
     );
-
-    /*
-    Phaser.Actions.RotateAroundDistance(
-      [...this.screen.pixels[0], ...this.screen.pixels[1]],
-      { x: 400, y: 300 },
-      0.84,
-      100
-    );
-    */
   }
 }
 
