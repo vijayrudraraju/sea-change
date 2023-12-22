@@ -4,10 +4,12 @@ import * as Phaser from "phaser";
 
 const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
+type Pixel = Phaser.GameObjects.Ellipse | Phaser.GameObjects.Rectangle;
+
 interface Screen {
   width: number;
   height: number;
-  pixels: Phaser.GameObjects.Ellipse[][];
+  pixels: Pixel[][];
   numPixelColumns: number;
   numPixelRows: number;
   pixelRadius: number;
@@ -25,9 +27,27 @@ interface Buttons {
   width: number;
 }
 
+type GeoShape =
+  | Phaser.Geom.Circle
+  | Phaser.Geom.Ellipse
+  | Phaser.Geom.Line
+  | Phaser.Geom.Point
+  | Phaser.Geom.Polygon
+  | Phaser.Geom.Rectangle
+  | Phaser.Geom.Triangle;
+
+enum PixelLayout {
+  GRID,
+  RANDOM,
+}
+
 interface Entity {
-  gameObject: Phaser.GameObjects.GameObject;
-  pixels: Phaser.GameObjects.Ellipse[];
+  gameObjects: Phaser.GameObjects.GameObject[];
+  key: string;
+  pixelLayout: PixelLayout;
+  pixelJitterAmount: number;
+  pixels: Pixel[];
+  pixelShape: GeoShape[];
 }
 
 interface Game {
@@ -78,7 +98,7 @@ export default class Demo extends Phaser.Scene {
       rectangle: null,
     },
     joystick: { circle: null, width: 260 },
-    buttons: { rectangle: null, width: 220 },
+    buttons: { rectangle: null, width: 230 },
     game: { entities: [] },
   };
 
@@ -102,15 +122,21 @@ export default class Demo extends Phaser.Scene {
     return { x, y };
   }
 
+  addEntity(entity: Entity) {
+    this.console.game.entities.push(entity);
+  }
+
+  buildEntityFromConfig() {}
+
   create() {
     // Buttons
     const { width: buttonWidth } = this.console.buttons;
     this.console.buttons.rectangle = this.add.rectangle(
-      windowWidth - buttonWidth / 2 - 40,
+      windowWidth - buttonWidth / 2 - 25,
       windowHeight / 2,
       buttonWidth,
       windowHeight - 40,
-      0x6666ff
+      Phaser.Display.Color.GetColor(95, 95, 255)
     );
 
     // Joystick
@@ -120,7 +146,7 @@ export default class Demo extends Phaser.Scene {
       windowHeight - joystickWidth / 2 - 20,
       joystickWidth,
       joystickWidth,
-      0xc175ac
+      Phaser.Display.Color.GetColor(195, 110, 175)
     );
 
     // Screen
@@ -133,12 +159,12 @@ export default class Demo extends Phaser.Scene {
       Phaser.Display.Color.GetColor(10, 70, 140)
     );
 
-    // Pixel config
+    // Initialize screen config
     const { pixelRadius, gridRadius } = this.console.screen;
     this.console.screen.numPixelColumns = screenWidth / (gridRadius * 2);
     this.console.screen.numPixelRows = screenHeight / (gridRadius * 2);
 
-    // Initialize pixels
+    // Initialize pixel GameObjects
     for (let j = 0; j < this.console.screen.numPixelRows; j++) {
       this.console.screen.pixels.push([]);
       for (let i = 0; i < this.console.screen.numPixelColumns; i++) {
@@ -155,9 +181,8 @@ export default class Demo extends Phaser.Scene {
       }
     }
 
-    // Initialize
-
     // Debug Axis
+    /*
     this.add.line(
       windowWidth / 2,
       windowHeight / 2,
@@ -176,10 +201,11 @@ export default class Demo extends Phaser.Scene {
       windowHeight,
       0x000000
     );
+    */
   }
 
   update(time: number, delta: number): void {
-    const randomSets: Phaser.GameObjects.Ellipse[][] = [[], []];
+    const randomSets: Pixel[][] = [[], []];
 
     // Iterate through all pixels
     for (let j = 0; j < this.console.screen.numPixelRows; j++) {
@@ -221,12 +247,12 @@ console.log(`arrangaata`, { width: windowWidth, height: windowHeight });
 
 const config = {
   type: Phaser.AUTO,
-  backgroundColor: 0x005157,
+  backgroundColor: Phaser.Display.Color.GetColor(0, 80, 85),
   width: windowWidth - 20,
   height: windowHeight - 20,
   scene: Demo,
   fps: {
-    target: 10,
+    target: 8,
     forceSetTimeOut: true,
   },
 };
