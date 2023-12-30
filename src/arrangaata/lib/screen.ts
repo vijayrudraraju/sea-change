@@ -1,14 +1,35 @@
-import * as Color from "./color";
 import * as Types from "./types";
 
 const { innerWidth: windowWidth } = window;
+
+export function addPixels(
+  num: number,
+  pixelRadius: number,
+  scene: Phaser.Scene
+) {
+  const pixels: Types.Pixel[] = [];
+
+  for (let i = 0; i < num; i++) {
+    const newPixel = scene.add.ellipse(
+      0,
+      0,
+      pixelRadius * 2,
+      pixelRadius * 2,
+      0xffffff
+    );
+
+    pixels.push(newPixel);
+  }
+
+  return pixels;
+}
 
 export function generateCoordsForPixel(
   i: number,
   j: number,
   console: Types.Console
 ) {
-  const { gridRadius, width } = console.screen;
+  const { gridRadius, width } = console.game.screen;
 
   const x =
     windowWidth / 2 -
@@ -25,11 +46,11 @@ export function initializeScreenPixels(
   console: Types.Console,
   scene: Phaser.Scene
 ) {
-  const { pixelRadius } = console.screen;
+  const { pixelRadius } = console.game.screen;
 
-  for (let j = 0; j < console.screen.numPixelRows; j++) {
-    console.screen.pixels.push([]);
-    for (let i = 0; i < console.screen.numPixelColumns; i++) {
+  for (let j = 0; j < console.game.screen.numPixelRows; j++) {
+    console.game.screen.pixels.push([]);
+    for (let i = 0; i < console.game.screen.numPixelColumns; i++) {
       const { x, y } = generateCoordsForPixel(i, j, console);
       const newPixel = scene.add.ellipse(
         x,
@@ -38,7 +59,7 @@ export function initializeScreenPixels(
         pixelRadius * 2,
         0xffffff
       );
-      console.screen.pixels[j].push(newPixel);
+      console.game.screen.pixels[j].push(newPixel);
     }
   }
 }
@@ -47,25 +68,64 @@ export function updateScreenPixels(console: Types.Console) {
   const randomSets: Types.Pixel[][] = [[], []];
 
   // Iterate through all pixels
-  for (let j = 0; j < console.screen.numPixelRows; j++) {
-    for (let i = 0; i < console.screen.numPixelColumns; i++) {
-      console.screen.pixels[j][i].setFillStyle(Color.generateBackgroundColor());
+  for (let j = 0; j < console.game.screen.numPixelRows; j++) {
+    for (let i = 0; i < console.game.screen.numPixelColumns; i++) {
+      // Randomly choose a color for each pixel, from a configured set of colors
+      console.game.screen.pixels[j][i].setFillStyle(
+        console.game.screen.pixelColorizer()
+      );
 
+      // Randomly nudge pixels
       const { x, y } = generateCoordsForPixel(i, j, console);
-      console.screen.pixels[j][i].setPosition(x, y);
-
-      // if ((i * j) % 40 === 0) randomSet.push(this.screen.pixels[j][i]);
-      if (Phaser.Math.Between(0, 25) % 25 === 0) {
-        randomSets[0].push(console.screen.pixels[j][i]);
-
-        console.screen.pixels[j][i].setFillStyle(Color.generateCircleColor());
-      } else if (Phaser.Math.Between(0, 15) % 15 === 0) {
-        randomSets[1].push(console.screen.pixels[j][i]);
-
-        console.screen.pixels[j][i].setFillStyle(Color.generateEllipseColor());
-      }
+      console.game.screen.pixels[j][i].setPosition(x, y);
     }
   }
 
   return randomSets;
+}
+
+export function updateEntity(
+  entity: Types.Entity,
+  pixelRadius: number,
+  scene: Phaser.Scene
+) {
+  if (!entity.pixels.length) {
+    entity.pixels = addPixels(1200, pixelRadius, scene);
+  }
+
+  entity.pixels.forEach((pixel) => {
+    pixel.setFillStyle(entity.pixelColorizer());
+  });
+
+  entity.pixelShapes.forEach((shape) => {
+    // console.log("DEBUG", entity.key, shape.type === Phaser.Geom.ELLIPSE);
+    switch (shape.type) {
+      case Phaser.Geom.CIRCLE:
+        Phaser.Actions.RandomCircle(entity.pixels, shape as Phaser.Geom.Circle);
+        break;
+      case Phaser.Geom.ELLIPSE:
+        Phaser.Actions.RandomEllipse(
+          entity.pixels,
+          shape as Phaser.Geom.Ellipse
+        );
+        break;
+      case Phaser.Geom.RECTANGLE:
+        Phaser.Actions.RandomRectangle(
+          entity.pixels,
+          shape as Phaser.Geom.Rectangle
+        );
+        break;
+      case Phaser.Geom.LINE:
+        Phaser.Actions.RandomLine(entity.pixels, shape as Phaser.Geom.Line);
+        break;
+      case Phaser.Geom.TRIANGLE:
+        Phaser.Actions.RandomTriangle(
+          entity.pixels,
+          shape as Phaser.Geom.Triangle
+        );
+        break;
+      default:
+        break;
+    }
+  });
 }

@@ -1,11 +1,29 @@
 import * as Types from "./types";
 
+const DEBUG = 0;
+
 const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
-export function generateButtonsContainer(
+export function initializeConsoleUI(
   console: Types.Console,
   scene: Phaser.Scene
 ) {
+  // Buttons
+  console.buttons.rectangle = addButtonsContainer(console, scene);
+
+  // Joystick
+  console.joystick.circle = addJoystickContainer(console, scene);
+
+  // Screen
+  console.game.screen.rectangle = addScreenContainer(console, scene);
+
+  // Debug Axis
+  if (DEBUG) {
+    addDebugAxisLines(scene);
+  }
+}
+
+function addButtonsContainer(console: Types.Console, scene: Phaser.Scene) {
   const { width: buttonWidth } = console.buttons;
 
   return scene.add.rectangle(
@@ -17,10 +35,7 @@ export function generateButtonsContainer(
   );
 }
 
-export function generateJoystickContainer(
-  console: Types.Console,
-  scene: Phaser.Scene
-) {
+function addJoystickContainer(console: Types.Console, scene: Phaser.Scene) {
   const { width: joystickWidth } = console.joystick;
 
   return scene.add.ellipse(
@@ -32,11 +47,8 @@ export function generateJoystickContainer(
   );
 }
 
-export function generateScreenContainer(
-  console: Types.Console,
-  scene: Phaser.Scene
-) {
-  const { width: screenWidth, height: screenHeight } = console.screen;
+function addScreenContainer(console: Types.Console, scene: Phaser.Scene) {
+  const { width: screenWidth, height: screenHeight } = console.game.screen;
 
   return scene.add.rectangle(
     windowWidth / 2,
@@ -47,7 +59,7 @@ export function generateScreenContainer(
   );
 }
 
-export function addDebugAxisLines(scene: Phaser.Scene) {
+function addDebugAxisLines(scene: Phaser.Scene) {
   scene.add.line(
     windowWidth / 2,
     windowHeight / 2,

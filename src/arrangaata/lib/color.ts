@@ -1,23 +1,11 @@
-export function generateBackgroundColor() {
-  const r = Phaser.Math.Between(10, 25);
-  const g = Phaser.Math.Between(70, 85);
-  const b = Phaser.Math.Between(140, 155);
+import { RgbRange } from "./types";
 
-  return Phaser.Display.Color.GetColor(r, g, b);
-}
+export function colorGeneratorFactory(rgbRange: RgbRange) {
+  return function () {
+    const r = Phaser.Math.Between(rgbRange.r.low, rgbRange.r.high);
+    const g = Phaser.Math.Between(rgbRange.g.low, rgbRange.g.high);
+    const b = Phaser.Math.Between(rgbRange.b.low, rgbRange.b.high);
 
-export function generateCircleColor() {
-  const r = Phaser.Math.Between(140, 155);
-  const g = Phaser.Math.Between(70, 85);
-  const b = Phaser.Math.Between(140, 155);
-
-  return Phaser.Display.Color.GetColor(r, g, b);
-}
-
-export function generateEllipseColor() {
-  const r = Phaser.Math.Between(70, 85);
-  const g = Phaser.Math.Between(140, 155);
-  const b = Phaser.Math.Between(140, 155);
-
-  return Phaser.Display.Color.GetColor(r, g, b);
+    return Phaser.Display.Color.GetColor(r, g, b);
+  };
 }

@@ -3,30 +3,82 @@ require("../arrangaata.html");
 import * as Phaser from "phaser";
 import * as Screen from "./lib/screen";
 import * as Types from "./lib/types";
-import {
-  // addDebugAxisLines,
-  generateButtonsContainer,
-  generateJoystickContainer,
-  generateScreenContainer,
-} from "./lib/ui";
+import * as UI from "./lib/ui";
+import { colorGeneratorFactory } from "./lib/color";
 
 const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
+const PIXEL_RADIUS = 4;
+const GRID_RADIUS = 3;
 
 export default class Main extends Phaser.Scene {
+  cardIndex: number = 0;
+
   console: Types.Console = {
-    screen: {
-      width: windowWidth - 520,
-      height: windowHeight - 20,
-      pixels: [],
-      numPixelColumns: (windowWidth - 520) / (3 * 2),
-      numPixelRows: (windowHeight - 20) / (3 * 2),
-      pixelRadius: 4,
-      gridRadius: 3,
-      rectangle: null,
-    },
     joystick: { circle: null, width: 260 },
     buttons: { rectangle: null, width: 230 },
-    game: { entities: [] },
+    game: {
+      name: "Arrangaata",
+      cards: [
+        {
+          name: "Welcome to no thing",
+          entities: [
+            {
+              gameObjects: [],
+              key: "maEntity",
+              pixelLayout: Types.PixelLayout.RANDOM,
+              pixelJitterAmount: 2,
+              pixels: [],
+              pixelShapes: [new Phaser.Geom.Ellipse(600, 400, 200, 230)],
+              pixelColorizer: colorGeneratorFactory({
+                r: { low: 70, high: 85 },
+                g: { low: 140, high: 155 },
+                b: { low: 140, high: 155 },
+              }),
+            },
+            {
+              gameObjects: [],
+              key: "littleEntity",
+              pixelLayout: Types.PixelLayout.RANDOM,
+              pixelJitterAmount: 2,
+              pixels: [],
+              pixelShapes: [new Phaser.Geom.Ellipse(400, 300, 100, 100)],
+              pixelColorizer: colorGeneratorFactory({
+                r: { low: 140, high: 155 },
+                g: { low: 70, high: 85 },
+                b: { low: 140, high: 155 },
+              }),
+            },
+          ],
+        },
+        {
+          name: "I and you",
+          entities: [],
+        },
+        {
+          name: "A thing",
+          entities: [],
+        },
+        {
+          name: "I have a thing",
+          entities: [],
+        },
+      ],
+      screen: {
+        width: windowWidth - 520,
+        height: windowHeight - 20,
+        pixelColorizer: colorGeneratorFactory({
+          r: { low: 10, high: 25 },
+          g: { low: 70, high: 85 },
+          b: { low: 140, high: 155 },
+        }),
+        pixelRadius: PIXEL_RADIUS,
+        pixels: [],
+        numPixelColumns: (windowWidth - 520) / (3 * 2),
+        numPixelRows: (windowHeight - 20) / (3 * 2),
+        gridRadius: GRID_RADIUS,
+        rectangle: null,
+      },
+    },
   };
 
   constructor() {
@@ -35,47 +87,34 @@ export default class Main extends Phaser.Scene {
 
   preload() {}
 
-  addEntity(entity: Types.Entity) {
-    this.console.game.entities.push(entity);
+  addEntities(entities: Types.Entity[]) {
+    this.console.game.cards[this.cardIndex].entities.push(...entities);
   }
 
-  buildEntityFromConfig() {}
+  getEntities() {
+    return this.console.game.cards[this.cardIndex].entities;
+  }
 
   create() {
-    // Buttons
-    this.console.buttons.rectangle = generateButtonsContainer(
-      this.console,
-      this
-    );
-
-    // Joystick
-    this.console.joystick.circle = generateJoystickContainer(
-      this.console,
-      this
-    );
-
-    // Screen
-    this.console.screen.rectangle = generateScreenContainer(this.console, this);
+    // Initialize Console UI
+    UI.initializeConsoleUI(this.console, this);
 
     // Initialize pixel GameObjects
     Screen.initializeScreenPixels(this.console, this);
 
-    // Debug Axis
-    // addDebugAxisLines(this);
+    // Prose
+    this.add.text(100, 200, "Nooo... no thing! No thing.", {
+      fontFamily: "Arial",
+      fontSize: 32,
+      color: "#30af80",
+    });
   }
 
   update(time: number, delta: number): void {
-    const randomSets = Screen.updateScreenPixels(this.console);
-
-    Phaser.Actions.RandomEllipse(
-      randomSets[0],
-      new Phaser.Geom.Ellipse(400, 300, 100, 100)
-    );
-
-    Phaser.Actions.RandomEllipse(
-      randomSets[1],
-      new Phaser.Geom.Ellipse(600, 400, 200, 100)
-    );
+    Screen.updateScreenPixels(this.console);
+    this.getEntities().forEach((entity) => {
+      Screen.updateEntity(entity, this.console.game.screen.pixelRadius, this);
+    });
   }
 }
 
