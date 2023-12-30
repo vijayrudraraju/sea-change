@@ -6,7 +6,8 @@ const { innerWidth: windowWidth, innerHeight: windowHeight } = window;
 
 export function initializeConsoleUI(
   console: Types.Console,
-  scene: Phaser.Scene
+  scene: Phaser.Scene,
+  callback: () => void
 ) {
   // Buttons
   console.buttons.rectangle = addButtonsContainer(console, scene);
@@ -15,7 +16,7 @@ export function initializeConsoleUI(
   console.joystick.circle = addJoystickContainer(console, scene);
 
   // Screen
-  console.game.screen.rectangle = addScreenContainer(console, scene);
+  console.game.screen.rectangle = addScreenContainer(console, scene, callback);
 
   // Debug Axis
   if (DEBUG) {
@@ -47,16 +48,28 @@ function addJoystickContainer(console: Types.Console, scene: Phaser.Scene) {
   );
 }
 
-function addScreenContainer(console: Types.Console, scene: Phaser.Scene) {
-  const { width: screenWidth, height: screenHeight } = console.game.screen;
+function addScreenContainer(
+  cons: Types.Console,
+  scene: Phaser.Scene,
+  callback: () => void
+) {
+  const { width: screenWidth, height: screenHeight } = cons.game.screen;
 
-  return scene.add.rectangle(
+  const screenContainer = scene.add.rectangle(
     windowWidth / 2,
-    screenHeight / 2,
+    windowHeight / 2,
     screenWidth,
     screenHeight,
     Phaser.Display.Color.GetColor(10, 70, 140)
   );
+
+  screenContainer.setInteractive();
+  screenContainer.on("pointerdown", () => {
+    console.log("pointerdown");
+    callback();
+  });
+
+  return screenContainer;
 }
 
 function addDebugAxisLines(scene: Phaser.Scene) {

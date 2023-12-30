@@ -52,7 +52,34 @@ export default class Main extends Phaser.Scene {
         },
         {
           name: "I and you",
-          entities: [],
+          entities: [
+            {
+              gameObjects: [],
+              key: "maEntity",
+              pixelLayout: Types.PixelLayout.RANDOM,
+              pixelJitterAmount: 2,
+              pixels: [],
+              pixelShapes: [new Phaser.Geom.Ellipse(600, 400, 100, 230)],
+              pixelColorizer: colorGeneratorFactory({
+                r: { low: 70, high: 85 },
+                g: { low: 140, high: 155 },
+                b: { low: 140, high: 155 },
+              }),
+            },
+            {
+              gameObjects: [],
+              key: "littleEntity",
+              pixelLayout: Types.PixelLayout.RANDOM,
+              pixelJitterAmount: 2,
+              pixels: [],
+              pixelShapes: [new Phaser.Geom.Ellipse(400, 300, 100, 100)],
+              pixelColorizer: colorGeneratorFactory({
+                r: { low: 140, high: 155 },
+                g: { low: 70, high: 85 },
+                b: { low: 140, high: 155 },
+              }),
+            },
+          ],
         },
         {
           name: "A thing",
@@ -87,17 +114,27 @@ export default class Main extends Phaser.Scene {
 
   preload() {}
 
-  addEntities(entities: Types.Entity[]) {
-    this.console.game.cards[this.cardIndex].entities.push(...entities);
-  }
-
   getEntities() {
     return this.console.game.cards[this.cardIndex].entities;
   }
 
+  clearEntities() {
+    this.console.game.cards[this.cardIndex].entities.forEach((entity) => {
+      entity.pixels.forEach((pixel) => pixel.destroy());
+      entity.pixels = [];
+    });
+  }
+
+  clicker() {
+    console.log("clicker");
+    this.clearEntities();
+    this.cardIndex = (this.cardIndex + 1) % this.console.game.cards.length;
+    console.log("cardIndex", this.cardIndex);
+  }
+
   create() {
     // Initialize Console UI
-    UI.initializeConsoleUI(this.console, this);
+    UI.initializeConsoleUI(this.console, this, () => this.clicker());
 
     // Initialize pixel GameObjects
     Screen.initializeScreenPixels(this.console, this);
