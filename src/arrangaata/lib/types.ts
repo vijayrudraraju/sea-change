@@ -10,6 +10,7 @@ export interface Screen {
   numPixelRows: number;
   gridRadius: number;
   rectangle: Phaser.GameObjects.Rectangle | null;
+  text: Phaser.GameObjects.Text | null;
 }
 
 export interface Joystick {
@@ -42,17 +43,18 @@ export interface RgbRange {
 }
 
 export interface Entity {
-  gameObjects: Phaser.GameObjects.GameObject[];
+  gameObjects?: Phaser.GameObjects.GameObject[];
   key: string;
   pixelColorizer: () => number;
   pixelLayout: PixelLayout;
   pixelJitterAmount: number;
-  pixels: Pixel[];
+  pixels?: Pixel[];
   pixelShapes: GeoShape[];
 }
 
 export interface Card {
   name: string;
+  text: string;
   entities: Entity[];
 }
 

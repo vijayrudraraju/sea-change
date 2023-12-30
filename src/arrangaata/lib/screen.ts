@@ -1,3 +1,4 @@
+import { GameObjects } from "phaser";
 import * as Types from "./types";
 
 const { innerWidth: windowWidth } = window;
@@ -89,7 +90,7 @@ export function updateEntity(
   pixelRadius: number,
   scene: Phaser.Scene
 ) {
-  if (!entity.pixels.length) {
+  if (!entity.pixels || !entity.pixels.length) {
     entity.pixels = addPixels(1200, pixelRadius, scene);
   }
 
@@ -97,35 +98,32 @@ export function updateEntity(
     pixel.setFillStyle(entity.pixelColorizer());
   });
 
+  const pixels = entity.pixels as GameObjects.GameObject[];
+
   entity.pixelShapes.forEach((shape) => {
     // console.log("DEBUG", entity.key, shape.type === Phaser.Geom.ELLIPSE);
     switch (shape.type) {
       case Phaser.Geom.CIRCLE:
-        Phaser.Actions.RandomCircle(entity.pixels, shape as Phaser.Geom.Circle);
+        Phaser.Actions.RandomCircle(pixels, shape as Phaser.Geom.Circle);
         break;
       case Phaser.Geom.ELLIPSE:
-        Phaser.Actions.RandomEllipse(
-          entity.pixels,
-          shape as Phaser.Geom.Ellipse
-        );
+        Phaser.Actions.RandomEllipse(pixels, shape as Phaser.Geom.Ellipse);
         break;
       case Phaser.Geom.RECTANGLE:
-        Phaser.Actions.RandomRectangle(
-          entity.pixels,
-          shape as Phaser.Geom.Rectangle
-        );
+        Phaser.Actions.RandomRectangle(pixels, shape as Phaser.Geom.Rectangle);
         break;
       case Phaser.Geom.LINE:
-        Phaser.Actions.RandomLine(entity.pixels, shape as Phaser.Geom.Line);
+        Phaser.Actions.RandomLine(pixels, shape as Phaser.Geom.Line);
         break;
       case Phaser.Geom.TRIANGLE:
-        Phaser.Actions.RandomTriangle(
-          entity.pixels,
-          shape as Phaser.Geom.Triangle
-        );
+        Phaser.Actions.RandomTriangle(pixels, shape as Phaser.Geom.Triangle);
         break;
       default:
         break;
     }
   });
+}
+
+export function updateText(console: Types.Console, text: string) {
+  console.game.screen.text?.setText(text);
 }
