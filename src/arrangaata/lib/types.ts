@@ -52,19 +52,28 @@ export interface Entity {
   pixelShapes: GeoShape[];
 }
 
+export interface Frame {
+  key: string;
+  text?: string[];
+  entities?: Entity[];
+  frames?: Frame[];
+}
+
 export interface Card {
-  name: string;
-  text: string;
-  entities: Entity[];
+  key: string;
+  text?: string[];
+  entities?: Entity[];
+  frames?: Frame[];
 }
 
 export interface Game {
-  name: string;
-  cards: Card[];
+  key: string;
+  cards?: Card[];
   screen: Screen;
 }
 
 export interface Console {
+  key: string;
   joystick: Joystick;
   buttons: Buttons;
   game: Game;

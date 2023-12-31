@@ -20,15 +20,15 @@ export default class Main extends Phaser.Scene {
   preload() {}
 
   getCurrentCard() {
-    return this.console.game.cards[this.cardIndex];
+    return this.console.game.cards?.[this.cardIndex];
   }
 
   getEntities() {
-    return this.getCurrentCard().entities;
+    return this.getCurrentCard()?.entities;
   }
 
   clearEntities() {
-    this.getCurrentCard().entities.forEach((entity) => {
+    this.getCurrentCard()?.entities?.forEach((entity) => {
       entity.pixels?.forEach((pixel) => pixel.destroy());
       entity.pixels = [];
     });
@@ -37,7 +37,8 @@ export default class Main extends Phaser.Scene {
   clicker() {
     console.log("clicker");
     this.clearEntities();
-    this.cardIndex = (this.cardIndex + 1) % this.console.game.cards.length;
+    this.cardIndex =
+      (this.cardIndex + 1) % (this.console.game.cards?.length || 0);
     console.log("cardIndex", this.cardIndex);
   }
 
@@ -58,10 +59,10 @@ export default class Main extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     Screen.updateScreenPixels(this.console);
-    this.getEntities().forEach((entity) => {
+    this.getEntities()?.forEach((entity) => {
       Screen.updateEntity(entity, this.console.game.screen.pixelRadius, this);
     });
-    Screen.updateText(this.console, this.getCurrentCard().text);
+    Screen.updateText(this.console, this.getCurrentCard()?.text?.[0] || "");
   }
 }
 
